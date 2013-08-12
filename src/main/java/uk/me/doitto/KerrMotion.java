@@ -1,7 +1,7 @@
 /**
  * 
  */
-
+package uk.me.doitto;
 /**
  * @author ian
  *
