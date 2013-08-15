@@ -10,24 +10,18 @@ public class KerrMotion {
 	
 	static final double TWOPI = 2.0 * Math.PI;
 	
-	static final double c = 299792458.0;
-	
-	static final double G = 6.67398e-11;
-	
 	static final double mu2 = 1.0;
 	
 	final double M, a, E, Lz, C, step, a2, f1;
 	
-	private double r2, ra2, ra, sth, cth, sth2, cth2, sigma, delta, P, sgn_r, sgn_r_set_value, sgn_theta, sgn_theta_set_value;
+	private double r2, ra2, ra, sth, cth, sth2, cth2, sigma, delta, P;
 	
-	private boolean sgn_r_set, sgn_theta_set;
-
 	double tau, t, r, theta, phi, tDot, rDot, thetaDot, phiDot, x, y, z;
 	
 	/**
-	 * 
+	 * Geodesics in the Kerr spacetime and Boyer-Lindquist coordinates
 	 */
-	public KerrMotion(double mass, double spin, double E, double L, double C, double t, double r, double theta, double phi, double step) {
+	public KerrMotion (double mass, double spin, double E, double L, double C, double t, double r, double theta, double phi, double step) {
 		this.M = mass;
 		this.a = spin;
 		this.E = E;
@@ -44,21 +38,6 @@ public class KerrMotion {
 		updateIntermediates(r, theta);
 	}
 
-	static KerrMotion constantR (double mass, double spin, double E, double t, double r, double theta, double phi, double step) {
-		double B = 1 / (spin * (mass - r));  // TODO this is a BIG problem for a = 0.0 !!!
-		double a2 = spin * spin;
-		double r2 = r * r;
-		double r4 = r2 * r2;
-		double M2r = 2 * mass * r;
-		double E2 = E * E;
-		double M2 = mass * mass;
-		/* Calculating Phi and Q*/
-		double Lz = B * (mass * E * (a2 - r2) + (a2 + r2 - M2r) * Math.sqrt(r2 * E2 + r * (mass- r)));
-		double Q = r2 * B * B * ((1 - E2) * r4 + (4 * mass * E2 - 5 * mass) * r2 * r + (8 - 5 * E2) * M2 * r2 +
-			(2 * a2 * E2 - a2 - 4 * M2) * mass * r + a2 * M2 + 2 * mass * E * (a2 + r2 - M2r) * Math.sqrt(r * (mass - r + r * E2)));
-		return new KerrMotion(mass, spin, E, Lz, Q, t, r, theta, phi, step);
-	}
-	
 	private void updateIntermediates (double r, double theta) {
 		r2 = r * r;
 		ra2 = r2 + a2;
@@ -72,30 +51,30 @@ public class KerrMotion {
 		assert sigma > 0.0 : "delta = " + sigma;
 		delta = ra2 - 2.0 * M * r;
 		assert delta > 0.0 : "delta = " + delta;
-		P = E * ra2 - Lz * a;
+		P = E * ra2 - Lz * a;  // MTW eq.33.33b
 	}
 	
 	public boolean outsideHorizon () {
 		return r > M * (1.0 + Math.sqrt(1.0 - a * a));
 	}
 	
-	private double uT () {
+	private double uT () {  // MTW eq.33.32d
 		return (ra2 * P / delta - a * (a * E * sth2 - Lz)) / sigma;
 	}
 	
-	private double uR () {
+	private double uR () {  // MTW eq.33.32b and 33.33c
 		double R = Math.abs(P * P - delta * (mu2 * r2 + f1 * f1 + C));
 		assert R >= 0.0 : "NEGATIVE SQUARE ROOT: R = " + R;
 		return Math.sqrt(R) / sigma;
 	}
 	
-	private double uTh () {
+	private double uTh () {  // MTW eq.33.32a and 33.33a
 		double THETA = Math.abs(C - cth2 * (a2 * (mu2 - E * E) + Lz * Lz / sth2));
 		assert THETA >= 0.0 : "NEGATIVE SQUARE ROOT: THETA = " + THETA;
 		return Math.sqrt(THETA) / sigma;
 	}
 	
-	private double uPh () {
+	private double uPh () {  // MTW eq.33.32c
 		return (a * P / delta - (a * E - Lz / sth2)) / sigma;
 	}
 	
@@ -105,29 +84,13 @@ public class KerrMotion {
 		r += deltaR;
 		theta += deltaTh;
 		phi += deltaPh;
-//		if (Math.abs(deltaR) < 10 * step * step && !sgn_r_set) {
-//			sgn_r = -sgn_r;
-//			sgn_r_set = true;			/* lock to prevent further sign changes */
-//			sgn_r_set_value = r;
-//		}
-//		if (sgn_r_set && Math.abs(sgn_r_set_value - r) > step) {
-//			sgn_r_set = false;			/* unlock */
-//		}
-//		if (Math.abs(deltaTh) < 10 * step * step && !sgn_theta_set) {
-//			sgn_theta = -sgn_theta;
-//			sgn_theta_set = true;			/* lock to prevent further sgn changes */
-//			sgn_theta_set_value = theta;
-//		}
-//		if (sgn_theta_set && Math.abs(sgn_theta_set_value - theta) > step) {
-//			sgn_theta_set = false;			/* unlock */
-//		}
 		updateIntermediates(r, theta);
 		x = ra * sth * Math.cos(phi);
 		y = ra * sth * Math.sin(phi);
 		z = r * cth;
 		double h1 = (uT() - a * sth2 * uPh());
 		double h2 = (ra2 * uPh() - a * uT());
-		return - delta / sigma * h1 * h1 + sth2 / sigma * h2 * h2 + sigma / delta * uR() * uR() + sigma * uTh() * uTh();
+		return - delta / sigma * h1 * h1 + sth2 / sigma * h2 * h2 + sigma / delta * uR() * uR() + sigma * uTh() * uTh();  // based on MTW eq. 33.2
 	}
 	
 	public double iterateEuler () {
@@ -143,17 +106,17 @@ public class KerrMotion {
 		double rK1 = uR();
 		double thK1 = uTh();
 		double phK1 = uPh();
-		updateIntermediates(r + rK1 * step / 2.0, theta + thK1 * step / 2.0);  // RK4 stage 2
+		updateIntermediates(r + rK1 * step / 2.0, theta + thK1 * step / 2.0);
 		double tK2 = uT();
 		double rK2 = uR();
 		double thK2 = uTh();
 		double phK2 = uPh();
-		updateIntermediates(r + rK2 * step / 2.0, theta + thK2 * step / 2.0);// RK4 stage 3
+		updateIntermediates(r + rK2 * step / 2.0, theta + thK2 * step / 2.0);
 		double tK3 = uT();
 		double rK3 = uR();
 		double thK3 = uTh();
 		double phK3 = uPh();
-		updateIntermediates(r + rK3 * step, theta + thK3 * step);// RK4 stage 4
+		updateIntermediates(r + rK3 * step, theta + thK3 * step);
 		double tK4 = uT();
 		double rK4 = uR();
 		double thK4 = uTh();
@@ -165,18 +128,13 @@ public class KerrMotion {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-//		System.out.println(args.length);
-		KerrMotion st;
-//		if (args.length == 12) {
-//			st = new KerrMotion(Double.parseDouble(args[0]), Double.parseDouble(args[1]), Double.parseDouble(args[2]), Double.parseDouble(args[3]), Double.parseDouble(args[4]) ,Double.parseDouble(args[5]) ,Double.parseDouble(args[6]) ,Double.parseDouble(args[7]) ,Double.parseDouble(args[8]) ,Double.parseDouble(args[9]));
-//		} else {
-			st = new KerrMotion(1.0, 0.0, 0.962250448649377, 4.0, 0.0, 0.0, 12.0, Math.PI / 2.0, 0.0, 0.03125);
-//		}
-		double hamiltonian;
-//		KerrMotion st = KerrMotion.constantR(1.0, 1.0, 0.960, 0.0, 10.0, Math.PI / 2.0, 0.0, 0.125);
+		KerrMotion st = new KerrMotion(1.0, 0.0, 0.962250448649377, 4.0, 0.0, 0.0, 12.0, Math.PI / 2.0, 0.0, 1.0 / 4.0);
+//		KerrMotion st = new KerrMotion(1.0, 0.0, 1.0, 4.0, 0.0, 0.0, 4.0, Math.PI / 2.0, 0.0, 1.0 / 4.0);
+//		KerrMotion st = new KerrMotion(1.0, -1.0, 0.966, 4.066, 0.0, 0.0, 17.488, Math.PI / 2.0, 0.0, 1.0 / 4.0);
+		double v4Norm;
 		while (st.outsideHorizon()) {
-			hamiltonian = st.iterateEuler();
-			System.out.printf("{\"H\":%.9e, \"tau\":%.9e, \"t\":%.9e, \"r\":%.9e, \"theta\":%.9e, \"phi\":%.9e, \"x\":%.9e, \"y\":%.9e, \"z\":%.9e}%n", hamiltonian, st.tau, st.t, st.r, st.theta % TWOPI, st.phi % TWOPI, st.x, st.y, st.z);
+			v4Norm = st.iterateRk4();
+			System.out.printf("{\"H\":%.9e, \"tau\":%.9e, \"t\":%.9e, \"r\":%.9e, \"theta\":%.9e, \"phi\":%.9e, \"x\":%.9e, \"y\":%.9e, \"z\":%.9e}%n", v4Norm, st.tau, st.t, st.r, st.theta % TWOPI, st.phi % TWOPI, st.x, st.y, st.z);
 		}
 	}
 }
