@@ -42,10 +42,8 @@ public class KerrMotion {
 		this.f1 = L - spin * E;
 		this.f12 = this.f1 * this.f1;
 		updateIntermediates(r, theta);
-//		this.tDot = uT();
 		this.rDot = uR();
 		this.thetaDot = uTh();
-//		this.phiDot = uPh();
 	}
 
 	private void updateIntermediates (double r, double theta) {
@@ -103,10 +101,10 @@ public class KerrMotion {
 	
 	void updateP (double c) {
 		double B1 = (-2*mu2*r*delta-(f12+C+mu2*r2)*(2*r-2*M)+4*r*E*P)/sigma2-(4*r*(P2-(f12+C+mu2*r2)*delta))/sigma3;
-		double D1 = (4*cth*sth*a2*(P2-(f12+C+mu2*r2)*delta))/sigma3;
+		double D1 = (4*csth*a2*(P2-(f12+C+mu2*r2)*delta))/sigma3;
 		rDot -= 0.5 * c * (B1 + D1);
 		double H1 = -(4*r*(C-cth2*(a2*(mu2-E2)+Lz2/sth2)))/sigma3;
-		double I1 = (2*cth*sth*(a2*(mu2-E2)+Lz2/sth2)+(2*cth3*Lz2)/sth3)/sigma2+(4*cth*sth*a2*(C-cth2*(a2*(mu2-E2)+Lz2/sth2)))/sigma3;
+		double I1 = (2*csth*f2+(2*cth3*Lz2)/sth3)/sigma2+(4*cth*sth*a2*(C-cth2*f2))/sigma3;
 		thetaDot -= 0.5 * c * (H1 + I1);
 	}
 	
@@ -117,20 +115,7 @@ public class KerrMotion {
 	}
 	
 	public double hamiltonian () {
-		return 0.5 * (rDot * rDot + thetaDot * thetaDot - (P * P - delta * (mu2 * r2 + f1 * f1 + C)) - (C - cth2 * (a2 * (mu2 - E * E) + Lz * Lz / sth2)));
-	}
-	
-	private double updateCoordinates (double deltaT, double deltaR, double deltaTh, double deltaPh) {
-		tau += step;
-		t += deltaT;		
-		r += deltaR;
-		theta += deltaTh;
-		phi += deltaPh;
-		updateIntermediates(r, theta);
-		x = ra * sth * Math.cos(phi);
-		y = ra * sth * Math.sin(phi);
-		z = r * cth;
-		return v4n();
+		return 0.5 * (rDot * rDot + thetaDot * thetaDot - (P * P - delta * (mu2 * r2 + f1 * f1 + C)) - (C - cth2 * f2));
 	}
 	
 	public double iterateSymplectic () {
@@ -139,57 +124,23 @@ public class KerrMotion {
 		Integrator.STORMER_VERLET_2.solve(this);
 		t += uT() * step;
 		phi += uPh() * step;
-		updateIntermediates(r, theta);
+//		updateIntermediates(r, theta);
 		x = ra * sth * Math.cos(phi);
 		y = ra * sth * Math.sin(phi);
 		z = r * cth;
 		return v4n();
 	}
 	
-	public double iterateEuler () {
-		return updateCoordinates(uT() * step, uR() * step, uTh() * step, uPh() * step);
-	}
-	
-	private double rk4Up (double k1, double k2, double k3, double k4) {
-		return (k1 + 2.0 * (k2 + k3) + k4) * step / 6.0;
-	}
-	
-	public double iterateRk4 () {
-		double tK1 = uT();
-		double rK1 = uR();
-		double thK1 = uTh();
-		double phK1 = uPh();
-		updateIntermediates(r + rK1 * step / 2.0, theta + thK1 * step / 2.0);
-		double tK2 = uT();
-		double rK2 = uR();
-		double thK2 = uTh();
-		double phK2 = uPh();
-		updateIntermediates(r + rK2 * step / 2.0, theta + thK2 * step / 2.0);
-		double tK3 = uT();
-		double rK3 = uR();
-		double thK3 = uTh();
-		double phK3 = uPh();
-		updateIntermediates(r + rK3 * step, theta + thK3 * step);
-		double tK4 = uT();
-		double rK4 = uR();
-		double thK4 = uTh();
-		double phK4 = uPh();
-		return updateCoordinates(rk4Up(tK1, tK2, tK3, tK4), rk4Up(rK1, rK2, rK3, rK4), rk4Up(thK1, thK2, thK3, thK4), rk4Up(phK1, phK2, phK3, phK4));
-	}
-	
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
-//		KerrMotion st = new KerrMotion(1.0, 0.0, 0.962250448649377, 4.0, 0.0, 0.0, 12.0, Math.PI / 2.0, 0.0, 1.0 / 4.0);
+		KerrMotion st = new KerrMotion(1.0, 0.0, 0.962250448649377, 0.95 * 4.0, 0.0, 0.0, 12.0, Math.PI / 2.0, 0.0, 1.0 / 4.0);
 //		KerrMotion st = new KerrMotion(1.0, 0.0, 1.0, 4.0, 0.0, 0.0, 4.0, Math.PI / 2.0, 0.0, 1.0 / 4.0);
-		KerrMotion st = new KerrMotion(1.0, 0.0, 0.966, 4.066, 0.0, 0.0, 17.488, Math.PI / 2.0, 0.0, 1.0 / 4.0);
+//		KerrMotion st = new KerrMotion(1.0, 0.0, 0.966, 4.066, 0.0, 0.0, 17.488, Math.PI / 2.0, 0.0, 1.0 / 4.0);
 		double v4Norm;
 		double h;
 		while (st.outsideHorizon()) {
-//			v4Norm = st.iterateRk4();
-//			v4Norm = st.v4n();
-//			System.out.printf("{\"V4N\":%.9e, \"tau\":%.9e, \"t\":%.9e, \"r\":%.9e, \"theta\":%.9e, \"phi\":%.9e, \"x\":%.9e, \"y\":%.9e, \"z\":%.9e}%n", v4Norm, st.tau, st.t, st.r, st.theta % TWOPI, st.phi % TWOPI, st.x, st.y, st.z);
 			v4Norm = st.iterateSymplectic();
 			h = st.hamiltonian();
 			System.out.printf("{\"V2\":%.9e, \"H\":%.9e, \"tau\":%.9e, \"t\":%.9e, \"r\":%.9e, \"theta\":%.9e, \"phi\":%.9e, \"x\":%.9e, \"y\":%.9e, \"z\":%.9e}%n", v4Norm, h, st.tau, st.t, st.r, st.theta % TWOPI, st.phi % TWOPI, st.x, st.y, st.z);
