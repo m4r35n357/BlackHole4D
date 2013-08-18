@@ -67,6 +67,16 @@ public class KerrMotion {
 		THETA = C - cth2 * f2;
 	}
 	
+	private double correctTheta (double theta) {
+		double newTheta = theta;
+		if (theta < 0.0) {
+			newTheta = - theta;
+		} else if (theta > Math.PI) {
+			newTheta = Math.PI - (theta % TWOPI);
+		}
+		return newTheta;
+	}
+	
 	public boolean outsideHorizon () {
 		return r > M * (1.0 + Math.sqrt(1.0 - a * a));
 	}
@@ -94,17 +104,17 @@ public class KerrMotion {
 	void updateQ (double c) {
 		double tmp = c * step / mu;
 		r += rDot * tmp;
-		theta += thetaDot * tmp;
+		theta = correctTheta(theta + thetaDot * tmp);
 		updateIntermediates(r, theta);
 	}
 	
 	void updateP (double c) {
 		double dRdR = (- 2.0 * mu2 * r * delta - (f12 + C + mu2 * r2) * 2.0 * (r - M) + 4.0 * r * E * P) / sigma2 - 4.0 * r * R / sigma3;
 		double dRdTh = 4.0 * csth * a2 * R / sigma3;
-		rDot -= 0.5 * c * (dRdR + dRdTh);
+		rDot -= 0.5 * c * step * (dRdR + dRdTh);
 		double dThdR = - 4.0 * r * THETA / sigma3;
 		double dThdTh = (2.0 * csth * f2 + (2.0 * cth3 * Lz * Lz) / sth3) / sigma2 + 4.0 * csth * a2 * THETA / sigma3;
-		thetaDot -= 0.5 * c * (dThdR + dThdTh);
+		thetaDot -= 0.5 * c * step * (dThdR + dThdTh);
 	}
 	
 	public double v4n () {
@@ -122,8 +132,7 @@ public class KerrMotion {
 		Integrator.STORMER_VERLET_2.init();
 		Integrator.STORMER_VERLET_2.solve(this);
 		t += uT() * step;
-		phi += uPh() * step;
-//		updateIntermediates(r, theta);
+		phi = (phi + uPh() * step) % TWOPI;
 		x = ra * sth * Math.cos(phi);
 		y = ra * sth * Math.sin(phi);
 		z = r * cth;
@@ -133,8 +142,8 @@ public class KerrMotion {
 	/**
 	 * @param args
 	 */
-	public static void main(String[] args) {
-		KerrMotion st = new KerrMotion(1.0, 0.0, 0.962250448649377, 4.0, 0.0, 0.0, 12.0, Math.PI / 2.0, 0.0, 1.0 / 4.0);
+	public static void main (String[] args) {
+		KerrMotion st = new KerrMotion(1.0, -1.0, 0.962250448649377, 0.9 * 4.0, 0.01, 0.0, 12.0, Math.PI / 2.0, 0.0, 1.0 / 16.0);
 //		KerrMotion st = new KerrMotion(1.0, 0.0, 1.0, 4.0, 0.0, 0.0, 4.0, Math.PI / 2.0, 0.0, 1.0 / 4.0);
 //		KerrMotion st = new KerrMotion(1.0, 0.0, 0.966, 4.066, 0.0, 0.0, 17.488, Math.PI / 2.0, 0.0, 1.0 / 4.0);
 		double v4Norm;
@@ -142,7 +151,7 @@ public class KerrMotion {
 		while (st.outsideHorizon()) {
 			v4Norm = st.iterateSymplectic();
 			h = st.hamiltonian();
-			System.out.printf("{\"V2\":%.9e, \"H\":%.9e, \"tau\":%.9e, \"t\":%.9e, \"r\":%.9e, \"theta\":%.9e, \"phi\":%.9e, \"x\":%.9e, \"y\":%.9e, \"z\":%.9e}%n", -v4Norm, h, st.tau, st.t, st.r, st.theta % TWOPI, st.phi % TWOPI, st.x, st.y, st.z);
+			System.out.printf("{\"V2\":%.9e, \"H\":%.1f, \"tau\":%.9e, \"t\":%.9e, \"r\":%.9e, \"theta\":%.9e, \"phi\":%.9e, \"x\":%.9e, \"y\":%.9e, \"z\":%.9e}%n", -v4Norm, 10.0 * Math.log10(Math.abs(h)), st.tau, st.t, st.r, st.theta, st.phi, st.x, st.y, st.z);
 		}
 	}
 }
