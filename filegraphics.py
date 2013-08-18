@@ -11,7 +11,7 @@ def main():
 	# scene basics
 	scene.center = (0,0,0)
 	scene.width = scene.height = 1000
-	scene.range = (10.0, 10.0, 10.0)
+	scene.range = (20.0, 20.0, 20.0)
 	# get data dimensions
 	line = dataFile.readline()
 	coordinates = loads(line)
