@@ -2,30 +2,35 @@
  * 
  */
 package uk.me.doitto;
+
 /**
  * @author ian
- *
+ * Geodesics in the Kerr spacetime and Boyer-Lindquist coordinates
  */
 public class KerrMotion {
 	
 	static final double TWOPI = 2.0 * Math.PI;
 	
-	static final double mu2 = 1.0;
+	static final double mu = 1.0;
 	
-	final double M, a, E, Lz, C, step, a2, f1;
+	static final double mu2 = mu * mu;
 	
-	private double r2, ra2, ra, sth, cth, sth2, cth2, sigma, delta, P;
+	final double M, a, E, E2, Lz, Lz2, C, step, a2, f1, f12;
 	
-	double tau, t, r, theta, phi, tDot, rDot, thetaDot, phiDot, x, y, z;
+	private double r2, ra2, ra, sth, cth, sth2, cth2, sth3, cth3, csth, sigma, sigma2, sigma3, delta,  P, P2, f2;
+	
+	double tau, t, r, theta, phi, rDot, thetaDot, x, y, z;
 	
 	/**
-	 * Geodesics in the Kerr spacetime and Boyer-Lindquist coordinates
+	 * Constructor, constants and initial conditions
 	 */
 	public KerrMotion (double mass, double spin, double E, double L, double C, double t, double r, double theta, double phi, double step) {
 		this.M = mass;
 		this.a = spin;
 		this.E = E;
+		this.E2 = E * E;
 		this.Lz = L;
+		this.Lz2 = Lz * Lz;
 		this.C = C;
 		this.tau = 0.0;
 		this.t = t;
@@ -35,7 +40,12 @@ public class KerrMotion {
 		this.step = - step;
 		this.a2 = spin * spin;
 		this.f1 = L - spin * E;
+		this.f12 = this.f1 * this.f1;
 		updateIntermediates(r, theta);
+//		this.tDot = uT();
+		this.rDot = uR();
+		this.thetaDot = uTh();
+//		this.phiDot = uPh();
 	}
 
 	private void updateIntermediates (double r, double theta) {
@@ -45,13 +55,19 @@ public class KerrMotion {
 		sth = Math.sin(theta);
 		cth = Math.cos(theta);
 		sth2 = sth * sth;
-		assert sth2 > 0.0 : "Sin^2(theta) = " + sth2;
+		sth3 = sth2 * sth;
 		cth2 = cth * cth;
+		cth3 = cth2 * cth;
+		csth = cth * sth;
 		sigma = r2 + a2 * cth2;
 		assert sigma > 0.0 : "delta = " + sigma;
+		sigma2 = sigma * sigma;
+		sigma3 = sigma2 * sigma;
 		delta = ra2 - 2.0 * M * r;
 		assert delta > 0.0 : "delta = " + delta;
 		P = E * ra2 - Lz * a;  // MTW eq.33.33b
+		P2 = P * P;
+		f2 = a2 * (mu2 - E * E) + Lz * Lz /sth2;
 	}
 	
 	public boolean outsideHorizon () {
@@ -78,6 +94,32 @@ public class KerrMotion {
 		return (a * P / delta - (a * E - Lz / sth2)) / sigma;
 	}
 	
+	void updateQ (double c) {
+		double tmp = c * step / mu;
+		r += rDot * tmp;
+		theta += thetaDot * tmp;
+		updateIntermediates(r, theta);
+	}
+	
+	void updateP (double c) {
+		double B1 = (-2*mu2*r*delta-(f12+C+mu2*r2)*(2*r-2*M)+4*r*E*P)/sigma2-(4*r*(P2-(f12+C+mu2*r2)*delta))/sigma3;
+		double D1 = (4*cth*sth*a2*(P2-(f12+C+mu2*r2)*delta))/sigma3;
+		rDot -= 0.5 * c * (B1 + D1);
+		double H1 = -(4*r*(C-cth2*(a2*(mu2-E2)+Lz2/sth2)))/sigma3;
+		double I1 = (2*cth*sth*(a2*(mu2-E2)+Lz2/sth2)+(2*cth3*Lz2)/sth3)/sigma2+(4*cth*sth*a2*(C-cth2*(a2*(mu2-E2)+Lz2/sth2)))/sigma3;
+		thetaDot -= 0.5 * c * (H1 + I1);
+	}
+	
+	public double v4n () {
+		double h1 = (uT() - a * sth2 * uPh());
+		double h2 = (ra2 * uPh() - a * uT());
+		return - delta / sigma * h1 * h1 + sth2 / sigma * h2 * h2 + sigma / delta * uR() * uR() + sigma * uTh() * uTh();  // based on MTW eq. 33.2
+	}
+	
+	public double hamiltonian () {
+		return 0.5 * (rDot * rDot + thetaDot * thetaDot - (P * P - delta * (mu2 * r2 + f1 * f1 + C)) - (C - cth2 * (a2 * (mu2 - E * E) + Lz * Lz / sth2)));
+	}
+	
 	private double updateCoordinates (double deltaT, double deltaR, double deltaTh, double deltaPh) {
 		tau += step;
 		t += deltaT;		
@@ -88,9 +130,20 @@ public class KerrMotion {
 		x = ra * sth * Math.cos(phi);
 		y = ra * sth * Math.sin(phi);
 		z = r * cth;
-		double h1 = (uT() - a * sth2 * uPh());
-		double h2 = (ra2 * uPh() - a * uT());
-		return - delta / sigma * h1 * h1 + sth2 / sigma * h2 * h2 + sigma / delta * uR() * uR() + sigma * uTh() * uTh();  // based on MTW eq. 33.2
+		return v4n();
+	}
+	
+	public double iterateSymplectic () {
+		tau += step;
+		Integrator.STORMER_VERLET_2.init();
+		Integrator.STORMER_VERLET_2.solve(this);
+		t += uT() * step;
+		phi += uPh() * step;
+		updateIntermediates(r, theta);
+		x = ra * sth * Math.cos(phi);
+		y = ra * sth * Math.sin(phi);
+		z = r * cth;
+		return v4n();
 	}
 	
 	public double iterateEuler () {
@@ -128,13 +181,18 @@ public class KerrMotion {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		KerrMotion st = new KerrMotion(1.0, 0.0, 0.962250448649377, 4.0, 0.0, 0.0, 12.0, Math.PI / 2.0, 0.0, 1.0 / 4.0);
+//		KerrMotion st = new KerrMotion(1.0, 0.0, 0.962250448649377, 4.0, 0.0, 0.0, 12.0, Math.PI / 2.0, 0.0, 1.0 / 4.0);
 //		KerrMotion st = new KerrMotion(1.0, 0.0, 1.0, 4.0, 0.0, 0.0, 4.0, Math.PI / 2.0, 0.0, 1.0 / 4.0);
-//		KerrMotion st = new KerrMotion(1.0, -1.0, 0.966, 4.066, 0.0, 0.0, 17.488, Math.PI / 2.0, 0.0, 1.0 / 4.0);
+		KerrMotion st = new KerrMotion(1.0, 0.0, 0.966, 4.066, 0.0, 0.0, 17.488, Math.PI / 2.0, 0.0, 1.0 / 4.0);
 		double v4Norm;
+		double h;
 		while (st.outsideHorizon()) {
-			v4Norm = st.iterateRk4();
-			System.out.printf("{\"H\":%.9e, \"tau\":%.9e, \"t\":%.9e, \"r\":%.9e, \"theta\":%.9e, \"phi\":%.9e, \"x\":%.9e, \"y\":%.9e, \"z\":%.9e}%n", v4Norm, st.tau, st.t, st.r, st.theta % TWOPI, st.phi % TWOPI, st.x, st.y, st.z);
+//			v4Norm = st.iterateRk4();
+//			v4Norm = st.v4n();
+//			System.out.printf("{\"V4N\":%.9e, \"tau\":%.9e, \"t\":%.9e, \"r\":%.9e, \"theta\":%.9e, \"phi\":%.9e, \"x\":%.9e, \"y\":%.9e, \"z\":%.9e}%n", v4Norm, st.tau, st.t, st.r, st.theta % TWOPI, st.phi % TWOPI, st.x, st.y, st.z);
+			v4Norm = st.iterateSymplectic();
+			h = st.hamiltonian();
+			System.out.printf("{\"V2\":%.9e, \"H\":%.9e, \"tau\":%.9e, \"t\":%.9e, \"r\":%.9e, \"theta\":%.9e, \"phi\":%.9e, \"x\":%.9e, \"y\":%.9e, \"z\":%.9e}%n", v4Norm, h, st.tau, st.t, st.r, st.theta % TWOPI, st.phi % TWOPI, st.x, st.y, st.z);
 		}
 	}
 }
