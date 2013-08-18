@@ -15,9 +15,9 @@ public class KerrMotion {
 	
 	static final double mu2 = mu * mu;
 	
-	final double M, a, E, E2, Lz, Lz2, C, step, a2, f1, f12;
+	final double M, a, E, Lz, C, step, a2, f1, f12;
 	
-	private double r2, ra2, ra, sth, cth, sth2, cth2, sth3, cth3, csth, sigma, sigma2, sigma3, delta,  P, P2, f2;
+	private double r2, ra2, ra, sth, cth, sth2, cth2, sth3, cth3, csth, sigma, sigma2, sigma3, delta,  P, R, THETA, f2;
 	
 	double tau, t, r, theta, phi, rDot, thetaDot, x, y, z;
 	
@@ -28,9 +28,7 @@ public class KerrMotion {
 		this.M = mass;
 		this.a = spin;
 		this.E = E;
-		this.E2 = E * E;
 		this.Lz = L;
-		this.Lz2 = Lz * Lz;
 		this.C = C;
 		this.tau = 0.0;
 		this.t = t;
@@ -64,8 +62,9 @@ public class KerrMotion {
 		delta = ra2 - 2.0 * M * r;
 		assert delta > 0.0 : "delta = " + delta;
 		P = E * ra2 - Lz * a;  // MTW eq.33.33b
-		P2 = P * P;
 		f2 = a2 * (mu2 - E * E) + Lz * Lz /sth2;
+		R = P * P - delta * (mu2 * r2 + f1 * f1 + C);
+		THETA = C - cth2 * f2;
 	}
 	
 	public boolean outsideHorizon () {
@@ -77,13 +76,13 @@ public class KerrMotion {
 	}
 	
 	private double uR () {  // MTW eq.33.32b and 33.33c
-		double R = Math.abs(P * P - delta * (mu2 * r2 + f1 * f1 + C));
+		double R = Math.abs(this.R);
 		assert R >= 0.0 : "NEGATIVE SQUARE ROOT: R = " + R;
 		return Math.sqrt(R) / sigma;
 	}
 	
 	private double uTh () {  // MTW eq.33.32a and 33.33a
-		double THETA = Math.abs(C - cth2 * (a2 * (mu2 - E * E) + Lz * Lz / sth2));
+		double THETA = Math.abs(this.THETA);
 		assert THETA >= 0.0 : "NEGATIVE SQUARE ROOT: THETA = " + THETA;
 		return Math.sqrt(THETA) / sigma;
 	}
@@ -100,12 +99,12 @@ public class KerrMotion {
 	}
 	
 	void updateP (double c) {
-		double B1 = (-2*mu2*r*delta-(f12+C+mu2*r2)*(2*r-2*M)+4*r*E*P)/sigma2-(4*r*(P2-(f12+C+mu2*r2)*delta))/sigma3;
-		double D1 = (4*csth*a2*(P2-(f12+C+mu2*r2)*delta))/sigma3;
-		rDot -= 0.5 * c * (B1 + D1);
-		double H1 = -(4*r*(C-cth2*(a2*(mu2-E2)+Lz2/sth2)))/sigma3;
-		double I1 = (2*csth*f2+(2*cth3*Lz2)/sth3)/sigma2+(4*cth*sth*a2*(C-cth2*f2))/sigma3;
-		thetaDot -= 0.5 * c * (H1 + I1);
+		double dRdR = (- 2.0 * mu2 * r * delta - (f12 + C + mu2 * r2) * 2.0 * (r - M) + 4.0 * r * E * P) / sigma2 - 4.0 * r * R / sigma3;
+		double dRdTh = 4.0 * csth * a2 * R / sigma3;
+		rDot -= 0.5 * c * (dRdR + dRdTh);
+		double dThdR = - 4.0 * r * THETA / sigma3;
+		double dThdTh = (2.0 * csth * f2 + (2.0 * cth3 * Lz * Lz) / sth3) / sigma2 + 4.0 * csth * a2 * THETA / sigma3;
+		thetaDot -= 0.5 * c * (dThdR + dThdTh);
 	}
 	
 	public double v4n () {
@@ -115,7 +114,7 @@ public class KerrMotion {
 	}
 	
 	public double hamiltonian () {
-		return 0.5 * (rDot * rDot + thetaDot * thetaDot - (P * P - delta * (mu2 * r2 + f1 * f1 + C)) - (C - cth2 * f2));
+		return 0.5 * (rDot * rDot + thetaDot * thetaDot - (R + THETA) / sigma2);
 	}
 	
 	public double iterateSymplectic () {
@@ -135,7 +134,7 @@ public class KerrMotion {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		KerrMotion st = new KerrMotion(1.0, 0.0, 0.962250448649377, 0.95 * 4.0, 0.0, 0.0, 12.0, Math.PI / 2.0, 0.0, 1.0 / 4.0);
+		KerrMotion st = new KerrMotion(1.0, 0.0, 0.962250448649377, 4.0, 0.0, 0.0, 12.0, Math.PI / 2.0, 0.0, 1.0 / 4.0);
 //		KerrMotion st = new KerrMotion(1.0, 0.0, 1.0, 4.0, 0.0, 0.0, 4.0, Math.PI / 2.0, 0.0, 1.0 / 4.0);
 //		KerrMotion st = new KerrMotion(1.0, 0.0, 0.966, 4.066, 0.0, 0.0, 17.488, Math.PI / 2.0, 0.0, 1.0 / 4.0);
 		double v4Norm;
@@ -143,7 +142,7 @@ public class KerrMotion {
 		while (st.outsideHorizon()) {
 			v4Norm = st.iterateSymplectic();
 			h = st.hamiltonian();
-			System.out.printf("{\"V2\":%.9e, \"H\":%.9e, \"tau\":%.9e, \"t\":%.9e, \"r\":%.9e, \"theta\":%.9e, \"phi\":%.9e, \"x\":%.9e, \"y\":%.9e, \"z\":%.9e}%n", v4Norm, h, st.tau, st.t, st.r, st.theta % TWOPI, st.phi % TWOPI, st.x, st.y, st.z);
+			System.out.printf("{\"V2\":%.9e, \"H\":%.9e, \"tau\":%.9e, \"t\":%.9e, \"r\":%.9e, \"theta\":%.9e, \"phi\":%.9e, \"x\":%.9e, \"y\":%.9e, \"z\":%.9e}%n", -v4Norm, h, st.tau, st.t, st.r, st.theta % TWOPI, st.phi % TWOPI, st.x, st.y, st.z);
 		}
 	}
 }
