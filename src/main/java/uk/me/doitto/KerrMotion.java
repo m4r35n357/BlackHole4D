@@ -111,10 +111,10 @@ public class KerrMotion {
 	void updateP (double c) {
 		double dRdR = (- 2.0 * mu2 * r * delta - (f12 + C + mu2 * r2) * 2.0 * (r - M) + 4.0 * r * E * P) / sigma2 - 4.0 * r * R / sigma3;
 		double dRdTh = 4.0 * csth * a2 * R / sigma3;
-		rDot -= 0.5 * c * step * (dRdR + dRdTh);
+		rDot += 0.5 * c * step * (dRdR + dRdTh);
 		double dThdR = - 4.0 * r * THETA / sigma3;
 		double dThdTh = (2.0 * csth * f2 + (2.0 * cth3 * Lz * Lz) / sth3) / sigma2 + 4.0 * csth * a2 * THETA / sigma3;
-		thetaDot -= 0.5 * c * step * (dThdR + dThdTh);
+		thetaDot += 0.5 * c * step * (dThdR + dThdTh);
 	}
 	
 	public double v4n () {
@@ -143,7 +143,8 @@ public class KerrMotion {
 	 * @param args
 	 */
 	public static void main (String[] args) {
-		KerrMotion st = new KerrMotion(1.0, -1.0, 0.962250448649377, 0.9 * 4.0, 0.01, 0.0, 12.0, Math.PI / 2.0, 0.0, 1.0 / 16.0);
+		KerrMotion st = new KerrMotion(1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 12.0, Math.PI / 2.0, 0.0, 1.0 / 4.0);
+//		KerrMotion st = new KerrMotion(1.0, 0.0, 0.962250448649377, 0.95 * 4.0, 0.1, 0.0, 12.0, Math.PI / 2.0, 0.0, 1.0 / 4.0);
 //		KerrMotion st = new KerrMotion(1.0, 0.0, 1.0, 4.0, 0.0, 0.0, 4.0, Math.PI / 2.0, 0.0, 1.0 / 4.0);
 //		KerrMotion st = new KerrMotion(1.0, 0.0, 0.966, 4.066, 0.0, 0.0, 17.488, Math.PI / 2.0, 0.0, 1.0 / 4.0);
 		double v4Norm;
@@ -152,6 +153,7 @@ public class KerrMotion {
 			v4Norm = st.iterateSymplectic();
 			h = st.hamiltonian();
 			System.out.printf("{\"V2\":%.9e, \"H\":%.1f, \"tau\":%.9e, \"t\":%.9e, \"r\":%.9e, \"theta\":%.9e, \"phi\":%.9e, \"x\":%.9e, \"y\":%.9e, \"z\":%.9e}%n", -v4Norm, 10.0 * Math.log10(Math.abs(h)), st.tau, st.t, st.r, st.theta, st.phi, st.x, st.y, st.z);
+//			System.out.printf("{\"V2\":%.9e, \"H\":%.9e, \"tau\":%.9e, \"t\":%.9e, \"r\":%.9e, \"theta\":%.9e, \"phi\":%.9e, \"x\":%.9e, \"y\":%.9e, \"z\":%.9e}%n", -v4Norm, h, st.tau, st.t, st.r, st.theta, st.phi, st.x, st.y, st.z);
 		}
 	}
 }
