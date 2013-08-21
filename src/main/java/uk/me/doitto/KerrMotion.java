@@ -61,7 +61,7 @@ public class KerrMotion {
 		sigma3 = sigma2 * sigma;
 		delta = ra2 - 2.0 * M * r;
 		assert delta > 0.0 : "delta = " + delta;
-		P = E * ra2 - Lz * a;  // MTW eq.33.33b
+		P = ra2 * E - a * Lz;  // MTW eq.33.33b
 		f2 = a2 * (mu2 - E * E) + Lz * Lz /sth2;
 		R = P * P - delta * (mu2 * r2 + f1 * f1 + C);
 		THETA = C - cth2 * f2;
@@ -109,12 +109,10 @@ public class KerrMotion {
 	}
 	
 	void updateP (double c) {
-		double dRdR = (- 2.0 * mu2 * r * delta - (f12 + C + mu2 * r2) * 2.0 * (r - M) + 4.0 * r * E * P) / sigma2 - 4.0 * r * R / sigma3;
-		double dRdTh = 4.0 * csth * a2 * R / sigma3;
-		rDot += 0.5 * c * step * (dRdR + dRdTh);
-		double dThdR = - 4.0 * r * THETA / sigma3;
-		double dThdTh = (2.0 * csth * f2 + (2.0 * cth3 * Lz * Lz) / sth3) / sigma2 + 4.0 * csth * a2 * THETA / sigma3;
-		thetaDot += 0.5 * c * step * (dThdR + dThdTh);
+		double dHdR = 2.0 * (2.0 * r * E * P - mu2 * r * delta - (f12 + C + mu2 * r2) * (r - M)) / sigma2 - 4.0 * r * (R + THETA) / sigma3;
+		rDot += 0.5 * c * step * dHdR;
+		double dHdTh = 2.0 * (csth * f2 + Lz * Lz * cth3 / sth3) / sigma2 + 4.0 * csth * a2 * (R + THETA) / sigma3;
+		thetaDot += 0.5 * c * step * dHdTh;
 	}
 	
 	public double v4n () {
@@ -143,10 +141,12 @@ public class KerrMotion {
 	 * @param args
 	 */
 	public static void main (String[] args) {
-		KerrMotion st = new KerrMotion(1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 12.0, Math.PI / 2.0, 0.0, 1.0 / 4.0);
-//		KerrMotion st = new KerrMotion(1.0, 0.0, 0.962250448649377, 0.95 * 4.0, 0.1, 0.0, 12.0, Math.PI / 2.0, 0.0, 1.0 / 4.0);
+//		KerrMotion st = new KerrMotion(1.0, -1.0, 1.0, 0.0, 0.0, 0.0, 12.0, Math.PI / 2.0, 0.0, 1.0 / 16.0);
+//		KerrMotion st = new KerrMotion(1.0, 1.0, 0.962250448649377, 0.6 * 4.0, 1.0, 0.0, 12.0, Math.PI / 2.0, 0.0, 1.0 / 16.0);  // GOOD, don't touch!
+		KerrMotion st = new KerrMotion(1.0, 1.0, 0.962250448649377, 0.6 * 4.0, 1.0, 0.0, 12.0, Math.PI / 2.0, 0.0, 1.0 / 16.0);
+//		KerrMotion st = new KerrMotion(1.0, 1.0, 0.989352727272727, -4.683, 0.0, 0.0, 12.201, Math.PI / 2.0, 0.0, 1.0 / 32.0);
 //		KerrMotion st = new KerrMotion(1.0, 0.0, 1.0, 4.0, 0.0, 0.0, 4.0, Math.PI / 2.0, 0.0, 1.0 / 4.0);
-//		KerrMotion st = new KerrMotion(1.0, 0.0, 0.966, 4.066, 0.0, 0.0, 17.488, Math.PI / 2.0, 0.0, 1.0 / 4.0);
+//		KerrMotion st = new KerrMotion(1.0, 1.0, 0.966, 4.066, 2.0, 0.0, 17.488, Math.PI / 2.0, 0.0, 1.0 / 16.0);
 		double v4Norm;
 		double h;
 		while (st.outsideHorizon()) {
