@@ -110,9 +110,9 @@ public class KerrMotion {
 	
 	void updateP (double c) {
 		double dHdR = 2.0 * (2.0 * r * E * P - mu2 * r * delta - (f12 + C + mu2 * r2) * (r - M)) / sigma2 - 4.0 * r * (R + THETA) / sigma3;
-		rDot += 0.5 * c * step * dHdR;
+		rDot += c * step * dHdR;
 		double dHdTh = 2.0 * (csth * f2 + Lz * Lz * cth3 / sth3) / sigma2 + 4.0 * csth * a2 * (R + THETA) / sigma3;
-		thetaDot += 0.5 * c * step * dHdTh;
+		thetaDot += c * step * dHdTh;
 	}
 	
 	public double v4n () {
@@ -143,7 +143,7 @@ public class KerrMotion {
 	public static void main (String[] args) {
 //		KerrMotion st = new KerrMotion(1.0, -1.0, 1.0, 0.0, 0.0, 0.0, 12.0, Math.PI / 2.0, 0.0, 1.0 / 16.0);
 //		KerrMotion st = new KerrMotion(1.0, 1.0, 0.962250448649377, 0.6 * 4.0, 1.0, 0.0, 12.0, Math.PI / 2.0, 0.0, 1.0 / 16.0);  // GOOD, don't touch!
-		KerrMotion st = new KerrMotion(1.0, 1.0, 0.962250448649377, 0.6 * 4.0, 1.0, 0.0, 12.0, Math.PI / 2.0, 0.0, 1.0 / 16.0);
+		KerrMotion st = new KerrMotion(1.0, 1.0, 0.962250448649377, 0.62 * 4.0, 1.0, 0.0, 12.0, Math.PI / 2.0, 0.0, 1.0 / 2.0);
 //		KerrMotion st = new KerrMotion(1.0, 1.0, 0.989352727272727, -4.683, 0.0, 0.0, 12.201, Math.PI / 2.0, 0.0, 1.0 / 32.0);
 //		KerrMotion st = new KerrMotion(1.0, 0.0, 1.0, 4.0, 0.0, 0.0, 4.0, Math.PI / 2.0, 0.0, 1.0 / 4.0);
 //		KerrMotion st = new KerrMotion(1.0, 1.0, 0.966, 4.066, 2.0, 0.0, 17.488, Math.PI / 2.0, 0.0, 1.0 / 16.0);

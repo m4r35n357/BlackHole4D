@@ -18,7 +18,7 @@ def main():
 	#  set up the balls
 	colours = [ (1.0, 1.0, 1.0), (1.0, 0.0, 0.0), (0.0, 1.0, 0.0), (0.0, 0.0, 1.0), (0.7, 0.7, 0.7), (0.5, 0.5, 0.0), (0.5, 0.0, 0.5), (0.0, 0.5, 0.5), (0.3, 0.3, 0.3) ]
 	spheres = []
-	ball = sphere(pos = (0.0, 0.0, 0.0), radius = 2.0, color = colours[3])
+	ball = sphere(pos = (0.0, 0.0, 0.0), radius = 2.0, color = colours[3], opacity=0.5)
 	spheres.append(ball)
 	ball = sphere(pos = (coordinates['x'], coordinates['y'], coordinates['z']), radius = 0.1, color = colours[2])
 	ball.trail = curve(color = ball.color)
