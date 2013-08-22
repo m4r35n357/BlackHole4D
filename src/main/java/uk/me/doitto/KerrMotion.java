@@ -3,6 +3,14 @@
  */
 package uk.me.doitto;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
+
 /**
  * @author ian
  * Geodesics in the Kerr spacetime and Boyer-Lindquist coordinates
@@ -138,12 +146,39 @@ public class KerrMotion {
 	}
 	
 	/**
-	 * @param args
+	 * Read initial conditions from a JSON-formatted file
+	 * @param fileName the path to the file
+	 * @return a Symplectic instance
 	 */
-	public static void main (String[] args) {
+	@SuppressWarnings("unchecked")
+	public static KerrMotion icJson (String fileName) throws IOException {
+		BufferedReader bufferedReader = new BufferedReader(new FileReader(new File(fileName)));
+		String data = "";
+		String line = bufferedReader.readLine();
+		while (line != null) {
+			data += line;
+			line = bufferedReader.readLine();
+		}
+		bufferedReader.close();
+		JSONObject ic = (JSONObject)JSONValue.parse(data);
+		return new KerrMotion((Double)ic.get("M"), (Double)ic.get("a"), (Double)ic.get("E"), (Double)ic.get("Lz"), (Double)ic.get("C"), (Double)ic.get("t"), (Double)ic.get("r"), (Double)ic.get("theta"), (Double)ic.get("phi"), (Double)ic.get("step"));
+	}
+	
+	/**
+	 * @param args
+	 * @throws IOException 
+	 */
+	public static void main (String[] args) throws IOException {
+		KerrMotion st;
+		if (args.length == 1) {
+			st = KerrMotion.icJson(args[0]);
+		} else {
+			System.err.println("Missing file name, giving up!");
+			return;
+		}
 //		KerrMotion st = new KerrMotion(1.0, -1.0, 1.0, 0.0, 0.0, 0.0, 12.0, Math.PI / 2.0, 0.0, 1.0 / 16.0);
 //		KerrMotion st = new KerrMotion(1.0, 1.0, 0.962250448649377, 0.6 * 4.0, 1.0, 0.0, 12.0, Math.PI / 2.0, 0.0, 1.0 / 16.0);  // GOOD, don't touch!
-		KerrMotion st = new KerrMotion(1.0, 1.0, 0.962250448649377, 0.62 * 4.0, 1.0, 0.0, 12.0, Math.PI / 2.0, 0.0, 1.0 / 2.0);
+//		KerrMotion st = new KerrMotion(1.0, 1.0, 0.962250448649377, 0.6 * 4.0, 3.0, 0.0, 12.0, Math.PI / 2.0, 0.0, 1.0 / 16.0);
 //		KerrMotion st = new KerrMotion(1.0, 1.0, 0.989352727272727, -4.683, 0.0, 0.0, 12.201, Math.PI / 2.0, 0.0, 1.0 / 32.0);
 //		KerrMotion st = new KerrMotion(1.0, 0.0, 1.0, 4.0, 0.0, 0.0, 4.0, Math.PI / 2.0, 0.0, 1.0 / 4.0);
 //		KerrMotion st = new KerrMotion(1.0, 1.0, 0.966, 4.066, 2.0, 0.0, 17.488, Math.PI / 2.0, 0.0, 1.0 / 16.0);

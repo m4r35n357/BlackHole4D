@@ -1,0 +1,23 @@
+#!/bin/sh
+
+ic=${1:-''}
+
+d='data'
+p='progress'
+#dir="$HOME/projects/Python/NBody3D"
+jar='target/blackhole4d-1.0-SNAPSHOT-jar-with-dependencies.jar'
+
+java -jar $jar $ic >$d 2>$p &
+PID=$!
+sleep 1
+$dir/filegraphics.py $d $p &
+wait $PID
+set $(wc -l $p)
+
+if [ $1 -gt 10000 ]
+then
+	$dir/fileprogress.py $p $(($1 / 10000)) &
+else
+	$dir/fileprogress.py $p 1 &
+fi
+
