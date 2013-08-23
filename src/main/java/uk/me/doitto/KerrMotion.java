@@ -3,6 +3,12 @@
  */
 package uk.me.doitto;
 
+import static uk.me.doitto.Integrator.STORMER_VERLET_10;
+import static uk.me.doitto.Integrator.STORMER_VERLET_2;
+import static uk.me.doitto.Integrator.STORMER_VERLET_4;
+import static uk.me.doitto.Integrator.STORMER_VERLET_6;
+import static uk.me.doitto.Integrator.STORMER_VERLET_8;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -29,10 +35,12 @@ public class KerrMotion {
 	
 	double tau, t, r, theta, phi, rDot, thetaDot, x, y, z;
 	
+	private final Integrator integrator;
+	
 	/**
 	 * Constructor, constants and initial conditions
 	 */
-	public KerrMotion (double mass, double spin, double E, double L, double C, double t, double r, double theta, double phi, double step) {
+	public KerrMotion (double mass, double spin, double E, double L, double C, double t, double r, double theta, double phi, double step, int order) {
 		this.M = mass;
 		this.a = spin;
 		this.E = E;
@@ -50,6 +58,27 @@ public class KerrMotion {
 		updateIntermediates(r, theta);
 		this.rDot = uR();
 		this.thetaDot = uTh();
+		switch (order) {
+		case 2:
+			integrator = STORMER_VERLET_2;
+			break;
+		case 4:
+			integrator = STORMER_VERLET_4;
+			break;
+		case 6:
+			integrator = STORMER_VERLET_6;
+			break;
+		case 8:
+			integrator = STORMER_VERLET_8;
+			break;
+		case 10:
+			integrator = STORMER_VERLET_10;
+			break;
+		default:
+			integrator = STORMER_VERLET_4;
+			break;
+		}
+		integrator.init();
 	}
 
 	private void updateIntermediates (double r, double theta) {
@@ -133,9 +162,8 @@ public class KerrMotion {
 	}
 	
 	public double iterateSymplectic () {
+		integrator.solve(this);
 		tau += step;
-		Integrator.STORMER_VERLET_2.init();
-		Integrator.STORMER_VERLET_2.solve(this);
 		t += uT() * step;
 		phi = (phi + uPh() * step) % TWOPI;
 		x = ra * sth * Math.cos(phi);
@@ -159,7 +187,7 @@ public class KerrMotion {
 		}
 		bufferedReader.close();
 		JSONObject ic = (JSONObject)JSONValue.parse(data);
-		return new KerrMotion ((Double)ic.get("M"), (Double)ic.get("a"), (Double)ic.get("E"), (Double)ic.get("Lz"), (Double)ic.get("C"), (Double)ic.get("t"), (Double)ic.get("r"), (Double)ic.get("theta"), (Double)ic.get("phi"), (Double)ic.get("step"));
+		return new KerrMotion ((Double)ic.get("M"), (Double)ic.get("a"), (Double)ic.get("E"), (Double)ic.get("Lz"), (Double)ic.get("C"), (Double)ic.get("t"), (Double)ic.get("r"), (Double)ic.get("theta"), (Double)ic.get("phi"), (Double)ic.get("step"), ((Long)ic.get("integratorOrder")).intValue());
 	}
 	
 	/**
