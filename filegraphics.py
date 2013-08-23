@@ -34,6 +34,13 @@ def main():
 		rate(60)
 		coordinates = loads(line)
 		ball = spheres[1]
+		error = coordinates['H']
+		if error < -90.0:
+			ball.color = colours[2]
+		elif error < -60.0:
+			ball.color = colours[5]
+		else:
+			ball.color = colours[1]
 		position = (coordinates['x'], coordinates['y'], coordinates['z'])
 		ball.pos = position
 		ball.trail.append(pos = position)
