@@ -150,7 +150,6 @@ public class KerrMotion {
 	 * @param fileName the path to the file
 	 * @return a Symplectic instance
 	 */
-	@SuppressWarnings("unchecked")
 	public static KerrMotion icJson (String fileName) throws IOException {
 		BufferedReader bufferedReader = new BufferedReader(new FileReader(new File(fileName)));
 		String data = "";
@@ -161,7 +160,7 @@ public class KerrMotion {
 		}
 		bufferedReader.close();
 		JSONObject ic = (JSONObject)JSONValue.parse(data);
-		return new KerrMotion((Double)ic.get("M"), (Double)ic.get("a"), (Double)ic.get("E"), (Double)ic.get("Lz"), (Double)ic.get("C"), (Double)ic.get("t"), (Double)ic.get("r"), (Double)ic.get("theta"), (Double)ic.get("phi"), (Double)ic.get("step"));
+		return new KerrMotion ((Double)ic.get("M"), (Double)ic.get("a"), (Double)ic.get("E"), (Double)ic.get("Lz"), (Double)ic.get("C"), (Double)ic.get("t"), (Double)ic.get("r"), (Double)ic.get("theta"), (Double)ic.get("phi"), (Double)ic.get("step"));
 	}
 	
 	/**
