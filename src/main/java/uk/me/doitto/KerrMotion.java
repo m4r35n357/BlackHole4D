@@ -117,10 +117,9 @@ public class KerrMotion {
 	}
 	
 	void updateP (double c) {
-		double dHdR = 2.0 * (2.0 * r * E * P - mu2 * r * delta - (f12 + C + mu2 * r2) * (r - M)) / sigma2 - 4.0 * r * (R + THETA) / sigma3;
-		rDot += c * step * dHdR;
-		double dHdTh = 2.0 * (csth * f2 + Lz * Lz * cth3 / sth3) / sigma2 + 4.0 * csth * a2 * (R + THETA) / sigma3;
-		thetaDot += c * step * dHdTh;
+		double tmp = c * step;
+		rDot += tmp * ((2.0 * r * E * P - mu2 * r * delta - (f12 + C + mu2 * r2) * (r - M)) / sigma2 - 2.0 * r * (R + THETA) / sigma3);
+		thetaDot += tmp * ((csth * f2 + Lz * Lz * cth3 / sth3) / sigma2 + 2.0 * csth * a2 * (R + THETA) / sigma3);
 	}
 	
 	public double v4n () {
