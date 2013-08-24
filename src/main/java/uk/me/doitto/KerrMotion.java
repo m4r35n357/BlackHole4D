@@ -31,7 +31,7 @@ public class KerrMotion {
 	
 	double tau, t, r, theta, phi, rDot, thetaDot, x, y, z;
 	
-	private final Integrator integrator;
+	private final Integrator symplectic;
 	
 	/**
 	 * Constructor, constants and initial conditions
@@ -59,25 +59,25 @@ public class KerrMotion {
 		this.thetaDot = Math.sqrt(uTh2());
 		switch (order) {
 		case 2:
-			integrator = STORMER_VERLET_2;
+			symplectic = STORMER_VERLET_2;
 			break;
 		case 4:
-			integrator = STORMER_VERLET_4;
+			symplectic = STORMER_VERLET_4;
 			break;
 		case 6:
-			integrator = STORMER_VERLET_6;
+			symplectic = STORMER_VERLET_6;
 			break;
 		case 8:
-			integrator = STORMER_VERLET_8;
+			symplectic = STORMER_VERLET_8;
 			break;
 		case 10:
-			integrator = STORMER_VERLET_10;
+			symplectic = STORMER_VERLET_10;
 			break;
 		default:
-			integrator = STORMER_VERLET_4;
+			symplectic = STORMER_VERLET_4;
 			break;
 		}
-		integrator.init();
+		symplectic.init();
 	}
 
 	private void updateIntermediates (double r, double theta) {
@@ -157,9 +157,9 @@ public class KerrMotion {
 	public void simulate () {
 		while (r > M * (1.0 + Math.sqrt(1.0 - a * a)) && -tau < time) {  // outside horizon and in proper time range
 			tau += step;
-			integrator.solve(this);  // symplectic stuff
-			t += uT() * step;  // euler
-			phi = (phi + uPh() * step) % TWOPI;  // euler
+			symplectic.solve(this);  // symplectic integrator for r and theta
+			t += uT() * step;  // euler for t
+			phi = (phi + uPh() * step) % TWOPI;  // euler for phi
 			x = ra * sth * Math.cos(phi);
 			y = ra * sth * Math.sin(phi);
 			z = r * cth;
@@ -190,13 +190,10 @@ public class KerrMotion {
 	 * @throws IOException 
 	 */
 	public static void main (String[] args) throws IOException {
-		KerrMotion st;
 		if (args.length == 1) {
-			st = KerrMotion.icJson(args[0]);
+			KerrMotion.icJson(args[0]).simulate();
 		} else {
 			System.err.println("Missing file name, giving up!");
-			return;
 		}
-		st.simulate();
 	}
 }
