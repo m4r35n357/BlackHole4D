@@ -81,7 +81,7 @@ public class KerrMotion {
 		x = ra * sth * Math.cos(phi);
 		y = ra * sth * Math.sin(phi);
 		z = r * cth;
-		System.out.printf("{\"v2\":%.3f, \"H\":%.1f, \"tau\":%.9e, \"t\":%.9e, \"r\":%.9e, \"theta\":%.9e, \"phi\":%.9e, \"x\":%.9e, \"y\":%.9e, \"z\":%.9e}%n", -v4n(), 10.0 * Math.log10(Math.abs(hamiltonian())), tau, t, r, theta, phi, x, y, z);
+		System.out.printf("{\"v2\":%.3f, \"H\":%.1f, \"tau\":%.9e, \"t\":%.9e, \"r\":%.9e, \"theta\":%.9e, \"phi\":%.9e, \"x\":%.9e, \"y\":%.9e, \"z\":%.9e}%n", -v2(), 10.0 * Math.log10(Math.abs(hamiltonian())), tau, t, r, theta, phi, x, y, z);
 	}
 
 	private void updateIntermediates (double r, double theta) {
@@ -148,7 +148,7 @@ public class KerrMotion {
 		thetaDot += tmp * ((csth * f2 + Lz * Lz * cth3 / sth3) / sigma2 + 2.0 * csth * a2 * R_THETA / sigma3);
 	}
 	
-	private double v4n () {
+	private double v2 () {
 		double h1 = (uT() - a * sth2 * uPh());
 		double h2 = (ra2 * uPh() - a * uT());
 		return - delta / sigma * h1 * h1 + sth2 / sigma * h2 * h2 + sigma / delta * uR2() + sigma * uTh2();  // based on MTW eq. 33.2
@@ -163,11 +163,11 @@ public class KerrMotion {
 			tau += step;
 			symplectic.solve(this);  // symplectic integrator for r and theta
 			t += uT() * step;  // euler for t
-			phi = (phi + uPh() * step) % TWOPI;  // euler for phi
+			phi = (phi - uPh() * step) % TWOPI;  // euler for phi
 			x = ra * sth * Math.cos(phi);
 			y = ra * sth * Math.sin(phi);
 			z = r * cth;
-			System.out.printf("{\"v2\":%.3f, \"H\":%.1f, \"tau\":%.9e, \"t\":%.9e, \"r\":%.9e, \"theta\":%.9e, \"phi\":%.9e, \"x\":%.9e, \"y\":%.9e, \"z\":%.9e}%n", -v4n(), 10.0 * Math.log10(Math.abs(hamiltonian())), tau, t, r, theta, phi, x, y, z);
+			System.out.printf("{\"v2\":%.3f, \"H\":%.1f, \"tau\":%.9e, \"t\":%.9e, \"r\":%.9e, \"theta\":%.9e, \"phi\":%.9e, \"x\":%.9e, \"y\":%.9e, \"z\":%.9e}%n", - v2(), 10.0 * Math.log10(Math.abs(hamiltonian())), - tau, - t, r, theta, phi, x, y, z);
 		}
 	}
 	
