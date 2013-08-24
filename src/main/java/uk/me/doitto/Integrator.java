@@ -95,8 +95,8 @@ public enum Integrator {
 	
 	/**
 	 * Basic 2nd-order Stormer-Verlet step which is composed into higher order methods
-	 * @param s the Symplectic instance
-	 * @param c composition coefficient
+	 * @param s the KerrMotion instance
+	 * @param y composition coefficient
 	 */
 	protected final void sympBase (KerrMotion s, double y) {
 		double halfY = 0.5 * y;
@@ -112,7 +112,7 @@ public enum Integrator {
 	
 	/**
 	 * Perform one iteration step for the configured integrator
-	 * @param s the Symplectic object reference, for passing through to the Q & P update methods
+	 * @param s the KerrMotion object reference, for passing through to the Q & P update methods
 	 */
 	void solve (KerrMotion s) {
 		int tmp = coefficients.length - 1;
