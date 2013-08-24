@@ -41,6 +41,7 @@ def main():
 			ball.color = colours[5]
 		else:
 			ball.color = colours[1]
+		ball.trail.color = ball.color
 		position = (coordinates['x'], coordinates['y'], coordinates['z'])
 		ball.pos = position
 		ball.trail.append(pos = position)

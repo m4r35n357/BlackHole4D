@@ -25,11 +25,7 @@ public class KerrMotion {
 	
 	static final double TWOPI = 2.0 * Math.PI;
 	
-	static final double mu = 1.0;
-	
-	static final double mu2 = mu * mu;
-	
-	final double M, a, E, Lz, C, time, step, a2, f1, f12;
+	final double M, a, mu, mu2, E, Lz, C, time, step, a2, f1, f12;
 	
 	private double r2, ra2, ra, sth, cth, sth2, cth2, sth3, cth3, csth, sigma, sigma2, sigma3, delta, P, R, THETA, R_THETA, f2;
 	
@@ -40,9 +36,11 @@ public class KerrMotion {
 	/**
 	 * Constructor, constants and initial conditions
 	 */
-	public KerrMotion (double mass, double spin, double E, double L, double C, double t, double r, double theta, double phi, double time, double step, int order) {
+	public KerrMotion (double mass, double spin, double mu, double E, double L, double C, double t, double r, double theta, double phi, double time, double step, int order) {
 		this.M = mass;
 		this.a = spin;
+		this.mu = mu;
+		this.mu2 = mu * mu;
 		this.E = E;
 		this.Lz = L;
 		this.C = C;
@@ -89,17 +87,17 @@ public class KerrMotion {
 		sth = Math.sin(theta);
 		cth = Math.cos(theta);
 		sth2 = sth * sth;
-		assert sth2 > 0.0 : "ZERO DIVISOR: sin(theta)";
+		assert sth2 > 0.0 : "ZERO DIVISOR: sin(theta), theta = " + theta;
 		sth3 = sth2 * sth;
 		cth2 = cth * cth;
 		cth3 = cth2 * cth;
 		csth = cth * sth;
 		sigma = r2 + a2 * cth2;
-		assert sigma > 0.0 : "ZERO DIVISOR: sigma";
+		assert sigma > 0.0 : "ZERO DIVISOR: sigma, r = " + r + ", theta = " + theta;
 		sigma2 = sigma * sigma;
 		sigma3 = sigma2 * sigma;
 		delta = ra2 - 2.0 * M * r;
-		assert delta > 0.0 : "ZERO DIVISOR: delta";
+		assert delta > 0.0 : "ZERO DIVISOR: delta, r = " + r;
 		P = ra2 * E - a * Lz;  // MTW eq.33.33b
 		R = P * P - delta * (mu2 * r2 + f1 * f1 + C);
 		f2 = a2 * (mu2 - E * E) + Lz * Lz /sth2;
@@ -184,7 +182,7 @@ public class KerrMotion {
 		}
 		bufferedReader.close();
 		JSONObject ic = (JSONObject)JSONValue.parse(data);
-		return new KerrMotion ((Double)ic.get("M"), (Double)ic.get("a"), (Double)ic.get("E"), (Double)ic.get("Lz"), (Double)ic.get("C"), (Double)ic.get("t"), (Double)ic.get("r"), (Double)ic.get("theta"), (Double)ic.get("phi"), (Double)ic.get("time"), (Double)ic.get("step"), ((Long)ic.get("integratorOrder")).intValue());
+		return new KerrMotion ((Double)ic.get("M"), (Double)ic.get("a"), (Double)ic.get("mu"), (Double)ic.get("E"), (Double)ic.get("Lz"), (Double)ic.get("C"), (Double)ic.get("t"), (Double)ic.get("r"), (Double)ic.get("theta"), (Double)ic.get("phi"), (Double)ic.get("time"), (Double)ic.get("step"), ((Long)ic.get("integratorOrder")).intValue());
 	}
 	
 	/**
