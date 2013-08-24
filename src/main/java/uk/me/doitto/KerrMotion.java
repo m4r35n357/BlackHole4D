@@ -165,7 +165,7 @@ public class KerrMotion {
 			x = ra * sth * Math.cos(phi);
 			y = ra * sth * Math.sin(phi);
 			z = r * cth;
-			System.out.printf("{\"V2\":%.9e, \"H\":%.1f, \"tau\":%.9e, \"t\":%.9e, \"r\":%.9e, \"theta\":%.9e, \"phi\":%.9e, \"x\":%.9e, \"y\":%.9e, \"z\":%.9e}%n", -v4n(), 10.0 * Math.log10(Math.abs(hamiltonian())), tau, t, r, theta, phi, x, y, z);
+			System.out.printf("{\"v2\":%.3f, \"H\":%.1f, \"tau\":%.9e, \"t\":%.9e, \"r\":%.9e, \"theta\":%.9e, \"phi\":%.9e, \"x\":%.9e, \"y\":%.9e, \"z\":%.9e}%n", -v4n(), 10.0 * Math.log10(Math.abs(hamiltonian())), tau, t, r, theta, phi, x, y, z);
 		}
 	}
 	
