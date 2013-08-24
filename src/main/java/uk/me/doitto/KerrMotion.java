@@ -197,7 +197,7 @@ public class KerrMotion {
 		if (args.length == 1) {
 			KerrMotion.icJson(args[0]).simulate();
 		} else {
-			System.err.println("Missing file name, giving up!");
+//			System.err.println("Missing file name, giving up!");
 		}
 	}
 }
