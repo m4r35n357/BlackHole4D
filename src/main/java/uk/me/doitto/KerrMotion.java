@@ -89,16 +89,17 @@ public class KerrMotion {
 		sth = Math.sin(theta);
 		cth = Math.cos(theta);
 		sth2 = sth * sth;
+		assert sth2 > 0.0 : "ZERO DIVISOR: sin(theta)";
 		sth3 = sth2 * sth;
 		cth2 = cth * cth;
 		cth3 = cth2 * cth;
 		csth = cth * sth;
 		sigma = r2 + a2 * cth2;
-		assert sigma > 0.0 : "delta = " + sigma;
+		assert sigma > 0.0 : "ZERO DIVISOR: sigma";
 		sigma2 = sigma * sigma;
 		sigma3 = sigma2 * sigma;
 		delta = ra2 - 2.0 * M * r;
-		assert delta > 0.0 : "delta = " + delta;
+		assert delta > 0.0 : "ZERO DIVISOR: delta";
 		P = ra2 * E - a * Lz;  // MTW eq.33.33b
 		R = P * P - delta * (mu2 * r2 + f1 * f1 + C);
 		f2 = a2 * (mu2 - E * E) + Lz * Lz /sth2;
@@ -169,7 +170,7 @@ public class KerrMotion {
 	}
 	
 	/**
-	 * Read initial conditions from a JSON-formatted file
+	 * Read initial conditions from a JSON-formatted file using Google's SimpleJSON library
 	 * @param fileName the path to the file
 	 * @return a Symplectic instance
 	 */
@@ -199,11 +200,5 @@ public class KerrMotion {
 			return;
 		}
 		st.simulate();
-//		KerrMotion st = new KerrMotion(1.0, -1.0, 1.0, 0.0, 0.0, 0.0, 12.0, Math.PI / 2.0, 0.0, 1.0 / 16.0);
-//		KerrMotion st = new KerrMotion(1.0, 1.0, 0.962250448649377, 0.6 * 4.0, 1.0, 0.0, 12.0, Math.PI / 2.0, 0.0, 1.0 / 16.0);  // GOOD, don't touch!
-//		KerrMotion st = new KerrMotion(1.0, 1.0, 0.962250448649377, 0.6 * 4.0, 3.0, 0.0, 12.0, Math.PI / 2.0, 0.0, 1.0 / 16.0);
-//		KerrMotion st = new KerrMotion(1.0, 1.0, 0.989352727272727, -4.683, 0.0, 0.0, 12.201, Math.PI / 2.0, 0.0, 1.0 / 32.0);
-//		KerrMotion st = new KerrMotion(1.0, 0.0, 1.0, 4.0, 0.0, 0.0, 4.0, Math.PI / 2.0, 0.0, 1.0 / 4.0);
-//		KerrMotion st = new KerrMotion(1.0, 1.0, 0.966, 4.066, 2.0, 0.0, 17.488, Math.PI / 2.0, 0.0, 1.0 / 16.0);
 	}
 }
