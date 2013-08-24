@@ -76,8 +76,8 @@ public class KerrMotion {
 		this.f1 = L - spin * E;
 		this.f12 = this.f1 * this.f1;
 		updateIntermediates(r, theta);
-		this.rDot = Math.sqrt(uR2());
-		this.thetaDot = Math.sqrt(uTh2());
+		this.rDot = Math.sqrt(uR2()) >= 0.0 ? Math.sqrt(uR2()) : 0.0;
+		this.thetaDot = Math.sqrt(uTh2()) >= 0.0 ? Math.sqrt(uTh2()) : 0.0;
 		x = ra * sth * Math.cos(phi);
 		y = ra * sth * Math.sin(phi);
 		z = r * cth;
