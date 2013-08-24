@@ -22,7 +22,7 @@ def main():
 	line = dataFile.readline()
 	coordinates = loads(line)
 	#  set up the balls
-	colours = [ (1.0, 1.0, 1.0), (1.0, 0.0, 0.0), (0.0, 1.0, 0.0), (0.0, 0.0, 1.0), (0.7, 0.7, 0.7), (0.5, 0.5, 0.0), (0.5, 0.0, 0.5), (0.0, 0.5, 0.5), (1.0, 1.0, 0.0) ]
+	colours = [ (1.0, 1.0, 1.0), (1.0, 0.0, 0.0), (0.0, 1.0, 0.0), (0.0, 0.0, 1.0), (0.7, 0.7, 0.7), (0.5, 0.5, 0.0), (0.5, 0.0, 0.5), (0.0, 1.0, 1.0), (1.0, 1.0, 0.0) ]
 	spheres = []
 	ball = sphere(pos = (0.0, 0.0, 0.0), radius = horizon, color = colours[3], opacity = 1.0)
 	spheres.append(ball)
@@ -38,7 +38,7 @@ def main():
 		if error < -120.0:
 			ball.color = colours[2]
 		elif error < -90.0:
-			ball.color = colours[5]
+			ball.color = colours[7]
 		elif error < -60.0:
 			ball.color = colours[8]
 		else:
