@@ -1,6 +1,5 @@
 package uk.me.doitto;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -41,14 +40,5 @@ public class KerrMotionTest {
     @Test
     public void sixth () {
 		new KerrMotion(1.0, -1.0, 1.0, 0.966, 4.066, 2.0, 0.0, 17.488, Math.PI / 2.0, 0.0, 5000.0, 1.0, 4).simulate();
-    }
-
-    @Test
-    public void thisAlwaysPasses() {
-    }
-
-    @Test
-    @Ignore
-    public void thisIsIgnored() {
     }
 }
