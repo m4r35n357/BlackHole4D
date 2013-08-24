@@ -51,12 +51,6 @@ public class KerrMotion {
 		this.phi = phi;
 		this.time = time;
 		this.step = - step;
-		this.a2 = spin * spin;
-		this.f1 = L - spin * E;
-		this.f12 = this.f1 * this.f1;
-		updateIntermediates(r, theta);
-		this.rDot = Math.sqrt(uR2());
-		this.thetaDot = Math.sqrt(uTh2());
 		switch (order) {
 		case 2:
 			symplectic = STORMER_VERLET_2;
@@ -78,6 +72,16 @@ public class KerrMotion {
 			break;
 		}
 		symplectic.init();
+		this.a2 = spin * spin;
+		this.f1 = L - spin * E;
+		this.f12 = this.f1 * this.f1;
+		updateIntermediates(r, theta);
+		this.rDot = Math.sqrt(uR2());
+		this.thetaDot = Math.sqrt(uTh2());
+		x = ra * sth * Math.cos(phi);
+		y = ra * sth * Math.sin(phi);
+		z = r * cth;
+		System.out.printf("{\"v2\":%.3f, \"H\":%.1f, \"tau\":%.9e, \"t\":%.9e, \"r\":%.9e, \"theta\":%.9e, \"phi\":%.9e, \"x\":%.9e, \"y\":%.9e, \"z\":%.9e}%n", -v4n(), 10.0 * Math.log10(Math.abs(hamiltonian())), tau, t, r, theta, phi, x, y, z);
 	}
 
 	private void updateIntermediates (double r, double theta) {
