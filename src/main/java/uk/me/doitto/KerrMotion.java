@@ -146,7 +146,7 @@ public class KerrMotion {
 	}
 	
 	void updateP (double c) {
-		double tmp = c * step;
+		double tmp = c * step;  // NB factor of 0.5 cancelled out by a factor of 2.0 below
 		rDot += tmp * ((2.0 * r * E * P - mu2 * r * delta - (f12 + CC + mu2 * r2) * (r - M)) / sigma2 - 2.0 * r * R_THETA / sigma3);
 		thetaDot += tmp * ((csth * f2 + Lz * Lz * cth3 / sth3) / sigma2 + 2.0 * csth * a2 * R_THETA / sigma3);
 	}
