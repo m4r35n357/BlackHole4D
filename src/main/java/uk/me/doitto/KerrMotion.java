@@ -44,7 +44,6 @@ public class KerrMotion {
 		this.E = E;
 		this.Lz = L;
 		this.C = C;
-		this.tau = 0.0;
 		this.t = t;
 		this.r = r;
 		this.theta = theta;
@@ -71,17 +70,9 @@ public class KerrMotion {
 			symplectic = STORMER_VERLET_4;
 			break;
 		}
-		symplectic.init();
 		this.a2 = spin * spin;
 		this.f1 = L - spin * E;
 		this.f12 = this.f1 * this.f1;
-		updateIntermediates(r, theta);
-		this.rDot = Math.sqrt(uR2()) >= 0.0 ? Math.sqrt(uR2()) : 0.0;
-		this.thetaDot = Math.sqrt(uTh2()) >= 0.0 ? Math.sqrt(uTh2()) : 0.0;
-		x = ra * sth * Math.cos(phi);
-		y = ra * sth * Math.sin(phi);
-		z = r * cth;
-		System.out.printf("{\"v2\":%.3f, \"H\":%.1f, \"tau\":%.9e, \"t\":%.9e, \"r\":%.9e, \"theta\":%.9e, \"phi\":%.9e, \"x\":%.9e, \"y\":%.9e, \"z\":%.9e}%n", - v2(), pH(), tau, t, r, theta, phi, x, y, z);
 	}
 
 	private void updateIntermediates (double r, double theta) {
@@ -137,10 +128,10 @@ public class KerrMotion {
 	
 	void updateQ (double c) {
 		double tmp = c * step / mu;
+		t += uT() * tmp;
 		r += rDot * tmp;
 		theta = correctTheta(theta + thetaDot * tmp);
-		t += uT() * tmp;  // euler for t
-		phi = (phi - uPh() * tmp) % TWOPI;  // euler for phi
+		phi = (phi - uPh() * tmp) % TWOPI;
 		updateIntermediates(r, theta);
 	}
 	
@@ -161,14 +152,18 @@ public class KerrMotion {
 	}
 	
 	public void simulate () {
-		while (r > M * (1.0 + Math.sqrt(1.0 - a * a)) && - tau < time) {  // outside horizon and in proper time range
-			tau += step;
-			symplectic.solve(this);  // symplectic integrator for r and theta
+		symplectic.init();
+		updateIntermediates(r, theta);
+		this.rDot = Math.sqrt(uR2()) >= 0.0 ? Math.sqrt(uR2()) : 0.0;
+		this.thetaDot = Math.sqrt(uTh2()) >= 0.0 ? Math.sqrt(uTh2()) : 0.0;
+		do {
 			x = ra * sth * Math.cos(phi);
 			y = ra * sth * Math.sin(phi);
 			z = r * cth;
 			System.out.printf("{\"v2\":%.3f, \"H\":%.1f, \"tau\":%.9e, \"t\":%.9e, \"r\":%.9e, \"theta\":%.9e, \"phi\":%.9e, \"x\":%.9e, \"y\":%.9e, \"z\":%.9e}%n", - v2(), pH(), - tau, - t, r, theta, phi, x, y, z);
-		}
+			tau += step;
+			symplectic.solve(this);  // symplectic integrator for r and theta
+		} while (r > M * (1.0 + Math.sqrt(1.0 - a * a)) && - tau <= time);  // outside horizon and in proper time range
 	}
 	
 	/**
@@ -197,7 +192,7 @@ public class KerrMotion {
 		if (args.length == 1) {
 			KerrMotion.icJson(args[0]).simulate();
 		} else {
-//			System.err.println("Missing file name, giving up!");
+			System.err.println("Missing file name, giving up!");
 		}
 	}
 }
