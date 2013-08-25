@@ -139,6 +139,8 @@ public class KerrMotion {
 		double tmp = c * step / mu;
 		r += rDot * tmp;
 		theta = correctTheta(theta + thetaDot * tmp);
+		t += uT() * tmp;  // euler for t
+		phi = (phi - uPh() * tmp) % TWOPI;  // euler for phi
 		updateIntermediates(r, theta);
 	}
 	
@@ -162,8 +164,6 @@ public class KerrMotion {
 		while (r > M * (1.0 + Math.sqrt(1.0 - a * a)) && - tau < time) {  // outside horizon and in proper time range
 			tau += step;
 			symplectic.solve(this);  // symplectic integrator for r and theta
-			t += uT() * step;  // euler for t
-			phi = (phi - uPh() * step) % TWOPI;  // euler for phi
 			x = ra * sth * Math.cos(phi);
 			y = ra * sth * Math.sin(phi);
 			z = r * cth;
