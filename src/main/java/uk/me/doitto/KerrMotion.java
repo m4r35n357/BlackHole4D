@@ -19,37 +19,37 @@ import org.json.simple.JSONValue;
 
 /**
  * @author ian
- * Geodesics in the Kerr spacetime and Boyer-Lindquist coordinates
+ * Particle trajectories in the Kerr spacetime and Boyer-Lindquist coordinates
  */
 public class KerrMotion {
 	
-	static final double TWOPI = 2.0 * Math.PI;
+	private static final double TWOPI = 2.0 * Math.PI;
 	
-	final double M, a, mu, mu2, E, Lz, C, time, step, a2, f1, f12;
+	private final double M, a, mu, mu2, E, Lz, CC, time, step, a2, f1, f12;
 	
 	private double r2, ra2, ra, sth, cth, sth2, cth2, sth3, cth3, csth, sigma, sigma2, sigma3, delta, P, R, THETA, R_THETA, f2;
 	
-	double tau, t, r, theta, phi, rDot, thetaDot, x, y, z;
+	private double tau, t, r, theta, phi, rDot, thetaDot, x, y, z;
 	
 	private final Integrator symplectic;
 	
 	/**
 	 * Constructor, constants and initial conditions
 	 */
-	public KerrMotion (double mass, double spin, double mu, double E, double L, double C, double t, double r, double theta, double phi, double time, double step, int order) {
-		this.M = mass;
-		this.a = spin;
-		this.mu = mu;
-		this.mu2 = mu * mu;
+	public KerrMotion (double mass, double spin, double m, double E, double L, double C, double t, double r, double th, double ph, double T, double ts, int order) {
+		M = mass;
+		a = spin;
+		mu = m;
+		mu2 = m * m;
 		this.E = E;
-		this.Lz = L;
-		this.C = C;
+		Lz = L;
+		CC = C;
 		this.t = t;
 		this.r = r;
-		this.theta = theta;
-		this.phi = phi;
-		this.time = time;
-		this.step = - step;
+		theta = th;
+		phi = ph;
+		time = T;
+		step = - ts;
 		switch (order) {
 		case 2:
 			symplectic = STORMER_VERLET_2;
@@ -70,9 +70,9 @@ public class KerrMotion {
 			symplectic = STORMER_VERLET_4;
 			break;
 		}
-		this.a2 = spin * spin;
-		this.f1 = L - spin * E;
-		this.f12 = this.f1 * this.f1;
+		a2 = spin * spin;
+		f1 = L - spin * E;
+		f12 = f1 * f1;
 	}
 
 	private void updateIntermediates (double r, double theta) {
@@ -94,20 +94,10 @@ public class KerrMotion {
 		delta = ra2 - 2.0 * M * r;
 		assert delta > 0.0 : "ZERO DIVISOR: delta, r = " + r;
 		P = ra2 * E - a * Lz;  // MTW eq.33.33b
-		R = P * P - delta * (mu2 * r2 + f1 * f1 + C);
+		R = P * P - delta * (mu2 * r2 + f1 * f1 + CC);
 		f2 = a2 * (mu2 - E * E) + Lz * Lz /sth2;
-		THETA = C - cth2 * f2;
+		THETA = CC - cth2 * f2;
 		R_THETA = R + THETA;
-	}
-	
-	private double correctTheta (double theta) {
-		double newTheta = theta;
-		if (theta < 0.0) {
-			newTheta = - theta;
-		} else if (theta > Math.PI) {
-			newTheta = Math.PI - (theta % TWOPI);
-		}
-		return newTheta;
 	}
 	
 	private double uT () {  // MTW eq.33.32d
@@ -126,19 +116,14 @@ public class KerrMotion {
 		return (a * P / delta - (a * E - Lz / sth2)) / sigma;
 	}
 	
-	void updateQ (double c) {
-		double tmp = c * step / mu;
-		t += uT() * tmp;
-		r += rDot * tmp;
-		theta = correctTheta(theta + thetaDot * tmp);
-		phi = (phi - uPh() * tmp) % TWOPI;
-		updateIntermediates(r, theta);
-	}
-	
-	void updateP (double c) {
-		double tmp = c * step;
-		rDot += tmp * ((2.0 * r * E * P - mu2 * r * delta - (f12 + C + mu2 * r2) * (r - M)) / sigma2 - 2.0 * r * R_THETA / sigma3);
-		thetaDot += tmp * ((csth * f2 + Lz * Lz * cth3 / sth3) / sigma2 + 2.0 * csth * a2 * R_THETA / sigma3);
+	private double correctTheta (double theta) {
+		double newTheta = theta;
+		if (theta < 0.0) {
+			newTheta = - theta;
+		} else if (theta > Math.PI) {
+			newTheta = Math.PI - (theta % TWOPI);
+		}
+		return newTheta;
 	}
 	
 	private double v2 () {
@@ -151,18 +136,33 @@ public class KerrMotion {
 		return 10.0 * Math.log10(Math.abs(0.5 * (rDot * rDot + thetaDot * thetaDot - R_THETA / sigma2)));
 	}
 	
-	public void simulate () {
-		symplectic.init();
+	void updateQ (double c) {
+		double tmp = c * step / mu;
+		t += uT() * tmp;
+		r += rDot * tmp;
+		theta = correctTheta(theta + thetaDot * tmp);
+		phi = (phi - uPh() * tmp) % TWOPI;
 		updateIntermediates(r, theta);
-		this.rDot = Math.sqrt(uR2()) >= 0.0 ? Math.sqrt(uR2()) : 0.0;
-		this.thetaDot = Math.sqrt(uTh2()) >= 0.0 ? Math.sqrt(uTh2()) : 0.0;
+	}
+	
+	void updateP (double c) {
+		double tmp = c * step;
+		rDot += tmp * ((2.0 * r * E * P - mu2 * r * delta - (f12 + CC + mu2 * r2) * (r - M)) / sigma2 - 2.0 * r * R_THETA / sigma3);
+		thetaDot += tmp * ((csth * f2 + Lz * Lz * cth3 / sth3) / sigma2 + 2.0 * csth * a2 * R_THETA / sigma3);
+	}
+	
+	public void simulate () {
+		updateIntermediates(r, theta);
+		rDot = Math.sqrt(uR2()) >= 0.0 ? Math.sqrt(uR2()) : 0.0;
+		thetaDot = Math.sqrt(uTh2()) >= 0.0 ? Math.sqrt(uTh2()) : 0.0;
+		symplectic.init();
 		do {
 			x = ra * sth * Math.cos(phi);
 			y = ra * sth * Math.sin(phi);
 			z = r * cth;
 			System.out.printf("{\"v2\":%.3f, \"H\":%.1f, \"tau\":%.9e, \"t\":%.9e, \"r\":%.9e, \"theta\":%.9e, \"phi\":%.9e, \"x\":%.9e, \"y\":%.9e, \"z\":%.9e}%n", - v2(), pH(), - tau, - t, r, theta, phi, x, y, z);
 			tau += step;
-			symplectic.solve(this);  // symplectic integrator for r and theta
+			symplectic.solve(this);
 		} while (r > M * (1.0 + Math.sqrt(1.0 - a * a)) && - tau <= time);  // outside horizon and in proper time range
 	}
 	
