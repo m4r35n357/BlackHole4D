@@ -25,11 +25,11 @@ public class KerrMotion {
 	
 	private static final double TWOPI = 2.0 * Math.PI;
 	
-	private final double M, a, mu, mu2, E, Lz, CC, time, step, a2, f1, f12;
+	private final double M, a, horizon, mu, mu2, E, Lz, CC, time, step, a2, f1, f12; // constants for this spacetime
 	
-	private double r2, ra2, ra, sth, cth, sth2, cth2, sth3, cth3, csth, sigma, sigma2, sigma3, delta, P, R, THETA, R_THETA, f2;
+	private double r2, ra2, ra, sth, cth, sth2, cth2, sth3, cth3, csth, sigma, sigma2, sigma3, delta, P, R, THETA, R_THETA, f2;  // intermediate variables
 	
-	private double tau, t, r, theta, phi, rDot, thetaDot, x, y, z;
+	private double tau, t, r, theta, phi, rDot, thetaDot, x, y, z; // coordinates etc.
 	
 	private final Integrator symplectic;
 	
@@ -39,8 +39,9 @@ public class KerrMotion {
 	public KerrMotion (double mass, double spin, double m, double E, double L, double C, double t, double r, double th, double ph, double T, double ts, int order) {
 		M = mass;
 		a = spin;
+		horizon = M * (1.0 + Math.sqrt(1.0 - a * a));
 		mu = m;
-		mu2 = m * m;
+		mu2 = mu * mu;
 		this.E = E;
 		Lz = L;
 		CC = C;
@@ -70,8 +71,8 @@ public class KerrMotion {
 			symplectic = STORMER_VERLET_4;
 			break;
 		}
-		a2 = spin * spin;
-		f1 = L - spin * E;
+		a2 = a * a;
+		f1 = L - a * E;
 		f12 = f1 * f1;
 	}
 
@@ -163,7 +164,7 @@ public class KerrMotion {
 			System.out.printf("{\"v2\":%.3f, \"H\":%.1f, \"tau\":%.9e, \"t\":%.9e, \"r\":%.9e, \"theta\":%.9e, \"phi\":%.9e, \"x\":%.9e, \"y\":%.9e, \"z\":%.9e}%n", - v2(), pH(), - tau, - t, r, theta, phi, x, y, z);
 			tau += step;
 			symplectic.solve(this);
-		} while (r > M * (1.0 + Math.sqrt(1.0 - a * a)) && - tau <= time);  // outside horizon and in proper time range
+		} while (r > horizon && - tau <= time);  // outside horizon and in proper time range
 	}
 	
 	/**
