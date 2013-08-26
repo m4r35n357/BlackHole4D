@@ -13,7 +13,7 @@ import static uk.me.doitto.Integrator.STORMER_VERLET_8;
  * @author ian
  * Particle trajectories in the Kerr spacetime and Boyer-Lindquist coordinates
  */
-public class KerrMotion {
+public final class KerrMotion {
 	
 	private static final double TWOPI = 2.0 * Math.PI;
 	
