@@ -61,8 +61,8 @@
 	</ciManagement>
 
 	<scm>
-		<connection>scm:git:/net/nas/Public/Freecom400GB/GitRepos/NBody3D.git</connection>
-		<developerConnection>scm:git:/net/nas/Public/Freecom400GB/GitRepos/NBody3D.git</developerConnection>
+		<connection>scm:git:/net/nas/Public/Freecom400GB/GitRepos/BlackHole4d.git</connection>
+		<developerConnection>scm:git:/net/nas/Public/Freecom400GB/GitRepos/BlackHole4d.git</developerConnection>
 	</scm>
 
 	<dependencies>
