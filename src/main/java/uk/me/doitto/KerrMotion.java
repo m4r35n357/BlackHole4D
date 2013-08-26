@@ -36,7 +36,7 @@ public class KerrMotion {
 	/**
 	 * Constructor, constants and initial conditions
 	 */
-	public KerrMotion (double mass, double spin, double m, double E, double L, double C, double t, double r, double th, double ph, double T, double ts, int order) {
+	public KerrMotion (double mass, double spin, double m, double E, double L, double C, double r, double th, double ph, double T, double ts, int order) {
 		M = mass;
 		a = spin;
 		horizon = M * (1.0 + Math.sqrt(1.0 - a * a));
@@ -45,7 +45,6 @@ public class KerrMotion {
 		this.E = E;
 		Lz = L;
 		CC = C;
-		this.t = t;
 		this.r = r;
 		theta = th;
 		phi = ph;
@@ -182,7 +181,7 @@ public class KerrMotion {
 		}
 		bufferedReader.close();
 		JSONObject ic = (JSONObject)JSONValue.parse(data);
-		return new KerrMotion ((Double)ic.get("M"), (Double)ic.get("a"), (Double)ic.get("mu"), (Double)ic.get("E"), (Double)ic.get("Lz"), (Double)ic.get("C"), (Double)ic.get("t"), (Double)ic.get("r"), (Double)ic.get("theta"), (Double)ic.get("phi"), (Double)ic.get("time"), (Double)ic.get("step"), ((Long)ic.get("integratorOrder")).intValue());
+		return new KerrMotion ((Double)ic.get("M"), (Double)ic.get("a"), (Double)ic.get("mu"), (Double)ic.get("E"), (Double)ic.get("Lz"), (Double)ic.get("C"), (Double)ic.get("r"), (Double)ic.get("theta"), (Double)ic.get("phi"), (Double)ic.get("time"), (Double)ic.get("step"), ((Long)ic.get("integratorOrder")).intValue());
 	}
 	
 	/**
