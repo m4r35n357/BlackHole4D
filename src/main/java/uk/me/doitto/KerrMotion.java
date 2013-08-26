@@ -9,14 +9,6 @@ import static uk.me.doitto.Integrator.STORMER_VERLET_4;
 import static uk.me.doitto.Integrator.STORMER_VERLET_6;
 import static uk.me.doitto.Integrator.STORMER_VERLET_8;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-
-import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
-
 /**
  * @author ian
  * Particle trajectories in the Kerr spacetime and Boyer-Lindquist coordinates
@@ -164,35 +156,5 @@ public class KerrMotion {
 			tau += step;
 			symplectic.solve(this);
 		} while (r > horizon && - tau <= time);  // outside horizon and in proper time range
-	}
-	
-	/**
-	 * Read initial conditions from a JSON-formatted parameter file using Google's SimpleJSON library
-	 * @param fileName the path to the file
-	 * @return a KerrMotion instance
-	 */
-	public static KerrMotion icJson (String fileName) throws IOException {
-		BufferedReader bufferedReader = new BufferedReader(new FileReader(new File(fileName)));
-		String data = "";
-		String line = bufferedReader.readLine();
-		while (line != null) {
-			data += line;
-			line = bufferedReader.readLine();
-		}
-		bufferedReader.close();
-		JSONObject ic = (JSONObject)JSONValue.parse(data);
-		return new KerrMotion ((Double)ic.get("M"), (Double)ic.get("a"), (Double)ic.get("mu"), (Double)ic.get("E"), (Double)ic.get("Lz"), (Double)ic.get("C"), (Double)ic.get("r"), (Double)ic.get("theta"), (Double)ic.get("phi"), (Double)ic.get("time"), (Double)ic.get("step"), ((Long)ic.get("integratorOrder")).intValue());
-	}
-	
-	/**
-	 * @param args
-	 * @throws IOException 
-	 */
-	public static void main (String[] args) throws IOException {
-		if (args.length == 1) {
-			KerrMotion.icJson(args[0]).simulate();
-		} else {
-			System.err.println("Missing file name, giving up!");
-		}
 	}
 }
