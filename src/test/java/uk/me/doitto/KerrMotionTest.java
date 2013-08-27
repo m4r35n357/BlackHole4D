@@ -1,5 +1,6 @@
 package uk.me.doitto;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -22,6 +23,7 @@ public class KerrMotionTest {
 		new KerrMotion(1.0, 1.0, 1.0, 0.962250448649377, 2.4, 3.0, 12.0, Math.PI / 2.0, 0.0, 5000.0, 1.0, 4).simulate();
     }
 
+    @Ignore
     @Test
     public void Plummet () {
 		new KerrMotion(1.0, 0.0, 1.0, 1.0, 0.0, 0.0, 100.0, Math.PI / 2.0, 0.0, 5000.0, 1.0, 4).simulate();
