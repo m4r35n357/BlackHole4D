@@ -14,18 +14,18 @@ import org.junit.runners.JUnit4;
 public class KerrMotionTest {
 
     @Test
-    public void Polar () {
+    public void polar () {
 		new KerrMotion(1.0, 1.0, 1.0, 0.96, 1.98, 6.0, 12.0, Math.PI / 2.0, 0.0, 5000.0, 1.0, 2).simulate();
     }
 
     @Test
-    public void Complex () {
+    public void complex () {
 		new KerrMotion(1.0, 1.0, 1.0, 0.962250448649377, 2.4, 3.0, 12.0, Math.PI / 2.0, 0.0, 5000.0, 1.0, 6).simulate();
     }
 
     @Ignore
     @Test
-    public void Plummet () {
+    public void plummet () {
 		new KerrMotion(1.0, 0.0, 1.0, 1.0, 0.0, 0.0, 100.0, Math.PI / 2.0, 0.0, 5000.0, 1.0, 4).simulate();
     }
 
