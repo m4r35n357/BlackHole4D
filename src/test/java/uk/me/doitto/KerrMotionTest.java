@@ -15,12 +15,12 @@ public class KerrMotionTest {
 
     @Test
     public void Polar () {
-		new KerrMotion(1.0, 1.0, 1.0, 0.96, 1.98, 6.0, 12.0, Math.PI / 2.0, 0.0, 5000.0, 1.0, 4).simulate();
+		new KerrMotion(1.0, 1.0, 1.0, 0.96, 1.98, 6.0, 12.0, Math.PI / 2.0, 0.0, 5000.0, 1.0, 2).simulate();
     }
 
     @Test
     public void Complex () {
-		new KerrMotion(1.0, 1.0, 1.0, 0.962250448649377, 2.4, 3.0, 12.0, Math.PI / 2.0, 0.0, 5000.0, 1.0, 4).simulate();
+		new KerrMotion(1.0, 1.0, 1.0, 0.962250448649377, 2.4, 3.0, 12.0, Math.PI / 2.0, 0.0, 5000.0, 1.0, 6).simulate();
     }
 
     @Ignore
@@ -31,17 +31,17 @@ public class KerrMotionTest {
 
     @Test
     public void circleStable () {
-		new KerrMotion(1.0, 0.0, 1.0, 0.9622504486493773, 4.0, 1.0, 12.0, Math.PI / 2.0, 0.0, 5000.0, 1.0, 4).simulate();
+		new KerrMotion(1.0, 0.0, 1.0, 0.9622504486493773, 4.0, 1.0, 12.0, Math.PI / 2.0, 0.0, 5000.0, 1.0, 8).simulate();
     }
 
     @Test
     public void circleUnStable () {
-		new KerrMotion(1.0, 0.0, 1.0, 1.0, 4.0, 1.0, 4.0, Math.PI / 2.0, 0.0, 5000.0, 1.0, 4).simulate();
+		new KerrMotion(1.0, 0.0, 1.0, 1.0, 4.0, 1.0, 4.0, Math.PI / 2.0, 0.0, 5000.0, 1.0, 10).simulate();
     }
 
     @Test
     public void circleStablePrograde () {
-		new KerrMotion(1.0, 1.0, 1.0, 0.9656115180853405, 4.0, 1.0, 14.109927135299376, Math.PI / 2.0, 0.0, 5000.0, 1.0, 4).simulate();
+		new KerrMotion(1.0, 1.0, 1.0, 0.9656115180853405, 4.0, 1.0, 14.109927135299376, Math.PI / 2.0, 0.0, 5000.0, 1.0, 10).simulate();
     }
 
     @Test
