@@ -45,6 +45,11 @@ public class KerrMotionTest {
     }
 
     @Test
+    public void circleUnStableRetrograde () {
+		new KerrMotion(1.0, -1.0, 1.0, 0.992324568078, 4.725799115, 0.0, 6.0, Math.PI / 2.0, 0.0, 5000.0, 1.0, 2).simulate();
+    }
+
+    @Test
     public void first () {
 		new KerrMotion(1.0, 1.0, 1.0, 0.962250448649377, 0.6 * 4.0, 1.0, 12.0, Math.PI / 2.0, 0.0, 5000.0, 1.0, 4).simulate();
     }
