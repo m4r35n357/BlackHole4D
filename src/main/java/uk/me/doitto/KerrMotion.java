@@ -125,7 +125,13 @@ public final class KerrMotion {
 	}
 	
 	private double pH () {
-		return 10.0 * Math.log10(Math.abs(0.5 * (rDot * rDot + thetaDot * thetaDot - R_THETA / sigma2)));
+		double a = rDot * rDot;
+		double b = thetaDot * thetaDot;
+		double c = a + b;
+		double d = R_THETA / sigma2;
+		double e = c - d;
+		return 10.0 * Math.log10(Math.abs(0.5 * e));
+//		return 10.0 * Math.log10(Math.abs(0.5 * (rDot * rDot + thetaDot * thetaDot - R_THETA / sigma2)));
 	}
 	
 	void updateQ (double c) {
@@ -145,8 +151,10 @@ public final class KerrMotion {
 	
 	public void simulate () {
 		updateIntermediates(r, theta);
-		rDot = Math.sqrt(uR2()) >= 0.0 ? Math.sqrt(uR2()) : 0.0;
-		thetaDot = Math.sqrt(uTh2()) >= 0.0 ? Math.sqrt(uTh2()) : 0.0;
+//		rDot = uR2() >= 0.0 ? Math.sqrt(uR2()) : 0.0;
+//		thetaDot = uTh2() >= 0.0 ? Math.sqrt(uTh2()) : 0.0;
+		rDot = (uR2() >= 0.0) ? Math.sqrt(uR2()) : - Math.sqrt(- uR2());
+		thetaDot = (uTh2() >= 0.0) ? Math.sqrt(uTh2()) : - Math.sqrt(- uTh2());
 		symplectic.init();
 		do {
 			x = ra * sth * Math.cos(phi);
