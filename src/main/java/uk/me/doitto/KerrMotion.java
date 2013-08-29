@@ -31,9 +31,7 @@ public final class KerrMotion {
 	public KerrMotion (double mass, double spin, double m, double E, double L, double C, double r, double th, double ph, double T, double ts, int order) {
 		M = mass;
 		a = spin;
-		horizon = M * (1.0 + Math.sqrt(1.0 - a * a));
 		mu = m;
-		mu2 = mu * mu;
 		this.E = E;
 		Lz = L;
 		CC = C;
@@ -63,6 +61,8 @@ public final class KerrMotion {
 			break;
 		}
 		a2 = a * a;
+		horizon = M * (1.0 + Math.sqrt(1.0 - a2));
+		mu2 = mu * mu;
 		f1 = L - a * E;
 		f12 = f1 * f1;
 	}
@@ -151,8 +151,6 @@ public final class KerrMotion {
 	
 	public void simulate () {
 		updateIntermediates(r, theta);
-//		rDot = uR2() >= 0.0 ? Math.sqrt(uR2()) : 0.0;
-//		thetaDot = uTh2() >= 0.0 ? Math.sqrt(uTh2()) : 0.0;
 		rDot = (uR2() >= 0.0) ? Math.sqrt(uR2()) : - Math.sqrt(- uR2());
 		thetaDot = (uTh2() >= 0.0) ? Math.sqrt(uTh2()) : - Math.sqrt(- uTh2());
 		symplectic.init();
@@ -160,7 +158,7 @@ public final class KerrMotion {
 			x = ra * sth * Math.cos(phi);
 			y = ra * sth * Math.sin(phi);
 			z = r * cth;
-			System.out.printf("{\"v2\":%.3f, \"H\":%.1f, \"tau\":%.9e, \"t\":%.9e, \"r\":%.9e, \"theta\":%.9e, \"phi\":%.9e, \"x\":%.9e, \"y\":%.9e, \"z\":%.9e}%n", - v2(), pH(), - tau, - t, r, theta, phi, x, y, z);
+			System.out.printf("{\"v2\":%.3f, \"H\":%.1f, \"R\":%.9e, \"THETA\":%.9e, \"tau\":%.9e, \"t\":%.9e, \"r\":%.9e, \"theta\":%.9e, \"phi\":%.9e, \"x\":%.9e, \"y\":%.9e, \"z\":%.9e}%n", - v2(), pH(), R, THETA, - tau, - t, r, theta, phi, x, y, z);
 			tau += step;
 			symplectic.solve(this);
 		} while (r > horizon && - tau <= time);  // outside horizon and in proper time range
