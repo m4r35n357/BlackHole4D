@@ -86,7 +86,7 @@ public final class KerrMotion {
 		delta = ra2 - 2.0 * M * r;
 		assert delta > 0.0 : "ZERO DIVISOR: delta, r = " + r;
 		P = ra2 * E - a * Lz;  // MTW eq.33.33b
-		R = P * P - delta * (mu2 * r2 + f1 * f1 + CC);
+		R = P * P - delta * (mu2 * r2 + f12 + CC);
 		f2 = a2 * (mu2 - E * E) + Lz * Lz /sth2;
 		THETA = CC - cth2 * f2;
 		R_THETA = R + THETA;
@@ -125,13 +125,7 @@ public final class KerrMotion {
 	}
 	
 	private double pH () {
-		double a = rDot * rDot;
-		double b = thetaDot * thetaDot;
-		double c = a + b;
-		double d = R_THETA / sigma2;
-		double e = c - d;
-		return 10.0 * Math.log10(Math.abs(0.5 * e));
-//		return 10.0 * Math.log10(Math.abs(0.5 * (rDot * rDot + thetaDot * thetaDot - R_THETA / sigma2)));
+		return 10.0 * Math.log10(Math.abs(0.5 * (rDot * rDot + thetaDot * thetaDot - R_THETA / sigma2)));
 	}
 	
 	void updateQ (double c) {
@@ -158,7 +152,7 @@ public final class KerrMotion {
 			x = ra * sth * Math.cos(phi);
 			y = ra * sth * Math.sin(phi);
 			z = r * cth;
-			System.out.printf("{\"v2\":%.3f, \"H\":%.1f, \"R\":%.9e, \"THETA\":%.9e, \"tau\":%.9e, \"t\":%.9e, \"r\":%.9e, \"theta\":%.9e, \"phi\":%.9e, \"x\":%.9e, \"y\":%.9e, \"z\":%.9e}%n", - v2(), pH(), R, THETA, - tau, - t, r, theta, phi, x, y, z);
+			System.out.printf("{\"v2\":%.3f, \"H\":%.1f, \"tau\":%.9e, \"t\":%.9e, \"r\":%.9e, \"theta\":%.9e, \"phi\":%.9e, \"x\":%.9e, \"y\":%.9e, \"z\":%.9e}%n", - v2(), pH(), - tau, - t, r, theta, phi, x, y, z);
 			tau += step;
 			symplectic.solve(this);
 		} while (r > horizon && - tau <= time);  // outside horizon and in proper time range

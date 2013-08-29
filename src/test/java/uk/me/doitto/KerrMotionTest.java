@@ -12,8 +12,17 @@ import org.junit.runners.JUnit4;
  */
 @RunWith(JUnit4.class)
 public class KerrMotionTest {
+	
+	private double L, E;
 
-    @Test
+	private void circular (double r, double a) {  // L and E for a circular orbit of r
+		double sqrtR = Math.sqrt(r);
+		double tmp = Math.sqrt(r * r - 3.0 * r + 2.0 * a * sqrtR);
+		L = (r * r - 2.0 * a * sqrtR + a * a) / (sqrtR * tmp);
+		E = (r * r - 2.0 * r + a * sqrtR) / (r * tmp);
+	}
+
+@Test
     public void polar () {
 		new KerrMotion(1.0, 1.0, 1.0, 0.96, 1.98, 6.0, 12.0, Math.PI / 2.0, 0.0, 5000.0, 1.0, 2).simulate();
     }
@@ -31,27 +40,42 @@ public class KerrMotionTest {
 
     @Test
     public void circleStable () {
-		new KerrMotion(1.0, 0.0, 1.0, 0.9622504486493773, 4.0, 0.0, 12.0, Math.PI / 2.0, 0.0, 5000.0, 1.0, 8).simulate();
+    	double r = 12.0;
+    	double a = 0.0;
+    	circular(r, a);
+		new KerrMotion(1.0, a, 1.0, E, L, 0.0, r, Math.PI / 2.0, 0.0, 5000.0, 1.0, 2).simulate();
     }
 
     @Test
     public void circleUnStable () {
-		new KerrMotion(1.0, 0.0, 1.0, 1.0, 4.0, 0.0, 4.0, Math.PI / 2.0, 0.0, 5000.0, 1.0, 10).simulate();
+    	double r = 4.0;
+    	double a = 0.0;
+    	circular(r, a);
+		new KerrMotion(1.0, a, 1.0, E, L, 0.0, r, Math.PI / 2.0, 0.0, 5000.0, 1.0, 2).simulate();
     }
 
     @Test
     public void circleStablePrograde () {
-		new KerrMotion(1.0, 1.0, 1.0, 0.959723537290, 3.717928598, 0.0, 12.0, Math.PI / 2.0, 0.0, 5000.0, 1.0, 2).simulate();
+    	double r = 12.0;
+    	double a = 1.0;
+    	circular(r, a);
+		new KerrMotion(1.0, a, 1.0, E, L, 0.0, r, Math.PI / 2.0, 0.0, 5000.0, 1.0, 2).simulate();
     }
 
     @Test
     public void circleStableRetrograde () {
-		new KerrMotion(1.0, -1.0, 1.0, 0.965969668, 4.362473, 0.0, 12.0, Math.PI / 2.0, 0.0, 5000.0, 1.0, 2).simulate();
+    	double r = 12.0;
+    	double a = -1.0;
+    	circular(r, a);
+		new KerrMotion(1.0, a, 1.0, E, L, 0.0, r, Math.PI / 2.0, 0.0, 5000.0, 1.0, 2).simulate();
     }
 
     @Test
     public void circleUnStableRetrograde () {
-		new KerrMotion(1.0, -1.0, 1.0, 0.992324568078, 4.725799115, 0.0, 6.0, Math.PI / 2.0, 0.0, 5000.0, 1.0, 2).simulate();
+    	double r = 6.0;
+    	double a = -1.0;
+    	circular(r, a);
+		new KerrMotion(1.0, a, 1.0, E, L, 0.0, r, Math.PI / 2.0, 0.0, 5000.0, 1.0, 2).simulate();
     }
 
     @Test
