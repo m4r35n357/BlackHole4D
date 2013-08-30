@@ -152,7 +152,8 @@ public final class KerrMotion {
 			x = ra * sth * Math.cos(phi);
 			y = ra * sth * Math.sin(phi);
 			z = r * cth;
-			System.out.printf("{\"v2\":%.3f, \"H\":%.1f, \"tau\":%.9e, \"t\":%.9e, \"r\":%.9e, \"theta\":%.9e, \"phi\":%.9e, \"x\":%.9e, \"y\":%.9e, \"z\":%.9e}%n", - v2(), pH(), - tau, - t, r, theta, phi, x, y, z);
+			System.out.printf("{\"tau\":%.9e, \"H\":%.1f, \"t\":%.9e, \"r\":%.9e, \"th\":%.9e, \"ph\":%.9e, \"uT\":%.9e, \"uR\":%.9e, \"uTh\":%.9e, \"uPh\":%.9e, \"x\":%.9e, \"y\":%.9e, \"z\":%.9e}%n", - tau, pH(), - t, r, theta, phi, uT(), rDot, thetaDot, uPh(), x, y, z);
+			System.err.printf("{\"tau\":%.9e, \"v2\":%.3f, \"H\":%.1f}%n", - tau, - v2(), pH());
 			tau += step;
 			symplectic.solve(this);
 		} while (r > horizon && - tau <= time);  // outside horizon and in proper time range
