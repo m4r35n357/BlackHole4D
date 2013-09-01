@@ -22,7 +22,7 @@ public class KerrMotionTest {
 		E = (r * r - 2.0 * r + a * sqrtR) / (r * tmp);
 	}
 
-@Test
+	@Test
     public void polar () {
 		new KerrMotion(1.0, 1.0, 1.0, 0.96, 1.98, 6.0, 12.0, Math.PI / 2.0, 0.0, 5000.0, 1.0, 2).simulate();
     }

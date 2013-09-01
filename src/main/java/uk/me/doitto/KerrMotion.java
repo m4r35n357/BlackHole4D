@@ -114,8 +114,7 @@ public final class KerrMotion {
 		double tmp = c * step / mu;
 		t += uT() * tmp;
 		r += rDot * tmp;
-		double newTheta = theta + thetaDot * tmp;
-		theta = newTheta <= TWOPI ? newTheta : Math.PI - (newTheta % TWOPI);
+		theta = (theta + thetaDot * tmp) % TWOPI;
 		phi = (phi - uPh() * tmp) % TWOPI;
 		updateIntermediates(r, theta);
 	}
