@@ -96,30 +96,14 @@ public final class KerrMotion {
 		return (ra2 * P / delta - a * (a * E * sth2 - Lz)) / sigma;
 	}
 	
-	private double uR2 () {  // MTW eq.33.32b and 33.33c
-		return R / sigma2;
-	}
-	
-	private double uTh2 () {  // MTW eq.33.32a and 33.33a
-		return THETA / sigma2;
-	}
-	
 	private double uPh () {  // MTW eq.33.32c
 		return (a * P / delta - (a * E - Lz / sth2)) / sigma;
-	}
-	
-	private double correctTheta (double theta) {
-		double newTheta = theta;
-		if (theta > Math.PI) {
-			newTheta = Math.PI - (theta % TWOPI);
-		}
-		return newTheta;
 	}
 	
 	private double v2 () {
 		double h1 = (uT() - a * sth2 * uPh());
 		double h2 = (ra2 * uPh() - a * uT());
-		return - delta / sigma * h1 * h1 + sth2 / sigma * h2 * h2 + sigma / delta * uR2() + sigma * uTh2();  // based on MTW eq. 33.2
+		return - delta / sigma * h1 * h1 + sth2 / sigma * h2 * h2 + R / (delta * sigma) + THETA / sigma;  // based on MTW eq. 33.2
 	}
 	
 	private double pH () {
@@ -130,7 +114,8 @@ public final class KerrMotion {
 		double tmp = c * step / mu;
 		t += uT() * tmp;
 		r += rDot * tmp;
-		theta = correctTheta(theta + thetaDot * tmp);
+		double newTheta = theta + thetaDot * tmp;
+		theta = newTheta <= TWOPI ? newTheta : Math.PI - (newTheta % TWOPI);
 		phi = (phi - uPh() * tmp) % TWOPI;
 		updateIntermediates(r, theta);
 	}
@@ -143,8 +128,8 @@ public final class KerrMotion {
 	
 	public void simulate () {
 		updateIntermediates(r, theta);
-		rDot = (uR2() >= 0.0) ? Math.sqrt(uR2()) : - Math.sqrt(- uR2());
-		thetaDot = (uTh2() >= 0.0) ? Math.sqrt(uTh2()) : - Math.sqrt(- uTh2());
+		rDot = (R / sigma2 >= 0.0) ? Math.sqrt(R / sigma2) : - Math.sqrt(- R / sigma2);  // MTW eq.33.32b and 33.33c
+		thetaDot = (THETA / sigma2 >= 0.0) ? Math.sqrt(THETA / sigma2) : - Math.sqrt(- THETA / sigma2);  // MTW eq.33.32a and 33.33a
 		symplectic.init();
 		do {
 			x = ra * sth * Math.cos(phi);
