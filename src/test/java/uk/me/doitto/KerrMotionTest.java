@@ -79,6 +79,14 @@ public class KerrMotionTest {
     }
 
     @Test
+    public void Polar1 () {
+    	double K = 14.783;
+    	double a = 0.8;
+    	double E = 0.956;
+		new KerrMotion(1.0, a, 1.0, E, 0.0, K - a * a * E * E, 10.0, Math.PI / 2.0, 0.0, 5000.0, 1.0, 4).simulate();
+    }
+
+    @Test
     public void first () {
 		new KerrMotion(1.0, 1.0, 1.0, 0.962250448649377, 0.6 * 4.0, 1.0, 12.0, Math.PI / 2.0, 0.0, 5000.0, 1.0, 4).simulate();
     }

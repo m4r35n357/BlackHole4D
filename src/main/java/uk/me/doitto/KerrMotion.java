@@ -110,9 +110,7 @@ public final class KerrMotion {
 	
 	private double correctTheta (double theta) {
 		double newTheta = theta;
-		if (theta < 0.0) {
-			newTheta = - theta;
-		} else if (theta > Math.PI) {
+		if (theta > Math.PI) {
 			newTheta = Math.PI - (theta % TWOPI);
 		}
 		return newTheta;
