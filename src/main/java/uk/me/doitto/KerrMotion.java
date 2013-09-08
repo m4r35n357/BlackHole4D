@@ -17,13 +17,13 @@ public final class KerrMotion {
 	
 	private static final double TWOPI = 2.0 * Math.PI;
 	
-	private final double M, a, horizon, mu, mu2, E, Lz, CC, time, step, a2, lmae2; // constants for this spacetime
+	private final double M, a, horizon, mu2, E, Lz, CC, time, step, a2, lmae2; // constants for this spacetime
 	
 	private double r2, ra2, ra, sth, cth, sth2, cth2, sth3, cth3, csth, sigma, sigma2, sigma3, delta, P, R, THETA, R_THETA, f2, P2;  // intermediate variables
 	
 	private double tau, t, r, theta, phi, rDot, thetaDot, x, y, z; // coordinates etc.
 	
-	private final Integrator symplectic;
+	private Integrator symplectic;
 	
 	/**
 	 * Constructor, constants and initial conditions
@@ -31,7 +31,7 @@ public final class KerrMotion {
 	public KerrMotion (double mass, double spin, double m, double E, double L, double C, double r, double th, double ph, double T, double ts, int order) {
 		M = mass;
 		a = spin;
-		mu = m;
+		mu2 = m;
 		this.E = E;
 		Lz = L;
 		CC = C;
@@ -41,28 +41,14 @@ public final class KerrMotion {
 		time = T;
 		step = - ts;
 		switch (order) {
-		case 2:
-			symplectic = STORMER_VERLET_2;
-			break;
-		case 4:
-			symplectic = STORMER_VERLET_4;
-			break;
-		case 6:
-			symplectic = STORMER_VERLET_6;
-			break;
-		case 8:
-			symplectic = STORMER_VERLET_8;
-			break;
-		case 10:
-			symplectic = STORMER_VERLET_10;
-			break;
-		default:
-			symplectic = STORMER_VERLET_4;
-			break;
+			case 2: symplectic = STORMER_VERLET_2; break;
+			case 4: symplectic = STORMER_VERLET_4; break;
+			case 6: symplectic = STORMER_VERLET_6; break;
+			case 8: symplectic = STORMER_VERLET_8; break;
+			case 10: symplectic = STORMER_VERLET_10; break;
 		}
 		a2 = a * a;
 		horizon = M * (1.0 + Math.sqrt(1.0 - a2));
-		mu2 = mu * mu;
 		lmae2 = (L - a * E) * (L - a * E);
 	}
 
