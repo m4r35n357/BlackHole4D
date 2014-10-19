@@ -66,7 +66,7 @@ public final class KerrMotion {
 		sigma = r2 + a2 * cth2;
 		assert sigma > 0.0 : "ZERO DIVISOR: sigma, r = " + r + ", theta = " + theta;
 		delta = ra2 - 2.0 * M * r;
-//		assert delta > 0.0 : "ZERO DIVISOR: delta, r = " + r;
+		assert delta > 0.0 : "ZERO DIVISOR: delta, r = " + r;
 		P1 = ra2 * E - a * L;  // MTW eq.33.33b
 		P2 = mu2 * r2 + lmae2 + CC;
 		R = P1 * P1 - delta * P2;
