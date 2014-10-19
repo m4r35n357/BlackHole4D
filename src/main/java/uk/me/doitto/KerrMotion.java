@@ -115,12 +115,12 @@ public final class KerrMotion {
 	
 	public void simulate () {
 		updateIntermediates();
-		rDot = (R >= 0.0) ? Math.sqrt(R) : -Math.sqrt(-R);  // MTW eq.33.32b and 33.33c
-		thDot = (THETA >= 0.0) ? Math.sqrt(THETA) : -Math.sqrt(-THETA);  // MTW eq.33.32a and 33.33a
+		rDot = Math.sqrt(R);  // MTW eq.33.32b and 33.33c
+		thDot = Math.sqrt(THETA);  // MTW eq.33.32a and 33.33a
 		symplectic.init();
 		do {
 			double ra = Math.sqrt(ra2);
-			System.out.printf("{\"mino\":%.9e, \"tau\":%.9e, \"H\":%.1f, \"HR\":%.1f, \"HTh\":%.1f, \"t\":%.9e, \"r\":%.9e, \"th\":%.9e, \"ph\":%.9e, \"uT\":%.9e, \"uR\":%.9e, \"uTh\":%.9e, \"uPh\":%.9e, \"x\":%.9e, \"y\":%.9e, \"z\":%.9e}%n", tau, sigma * tau, h(), hR(), hTh(), - t, r, theta, phi, uT(), rDot, thDot, uPh(), ra * sth * Math.cos(phi), ra * sth * Math.sin(phi), r * cth);
+			System.out.printf("{\"mino\":%.9e, \"tau\":%.9e, \"H\":%.1f, \"HR\":%.1f, \"HTh\":%.1f, \"t\":%.9e, \"r\":%.9e, \"th\":%.9e, \"ph\":%.9e, \"R\":%.9e, \"THETA\":%.9e, \"uT\":%.9e, \"uR\":%.9e, \"uTh\":%.9e, \"uPh\":%.9e, \"x\":%.9e, \"y\":%.9e, \"z\":%.9e}%n", tau, sigma * tau, h(), hR(), hTh(), - t, r, theta, phi, R, THETA, uT(), rDot, thDot, uPh(), ra * sth * Math.cos(phi), ra * sth * Math.sin(phi), r * cth);
 			tau += step;
 			symplectic.solve(this);
 		} while (r > horizon && tau <= time);  // outside horizon and in proper time range
