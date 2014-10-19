@@ -23,8 +23,13 @@ public class KerrMotionTest {
 	}
 
 	@Test
-    public void polar () {
+    public void polar1 () {
 		new KerrMotion(1.0, 1.0, 1.0, 0.96, 1.98, 6.0, 12.0, Math.PI / 2.0, 0.0, 100.0, 0.01, 2).simulate();
+    }
+
+	@Test
+    public void polar () {
+		new KerrMotion(1.0, 1.0, 1.0, 0.9558, 0.035991, 14.119546, 10.0, Math.PI / 2.0, 0.0, 100.0, 0.01, 2).simulate();
     }
 
     @Test

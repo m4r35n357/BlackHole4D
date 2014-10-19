@@ -17,9 +17,9 @@ public final class KerrMotion {
 	
 	private static final double TWOPI = 2.0 * Math.PI;
 	
-	private final double M, a, horizon, mu2, E, Lz, CC, time, step, a2, lmae2; // constants for this spacetime
+	private final double M, a, horizon, mu2, E, L, CC, time, step, a2, lmae2; // constants for this spacetime
 	
-	private double r2, ra2, sth, cth, sth2, cth2, sth3, cth3, csth, sigma, delta, P, R, THETA, TH, P2;  // intermediate variables
+	private double r2, ra2, sth, cth, sth2, cth2, sth3, cth3, csth, sigma, delta, R, P1, P2, THETA, TH;  // intermediate variables
 	
 	private double tau, t, r, theta, phi, rDot, thDot, x, y, z; // coordinates etc.
 	
@@ -33,7 +33,7 @@ public final class KerrMotion {
 		a = spin;
 		mu2 = m;
 		this.E = E;
-		Lz = L;
+		this.L = L;
 		CC = C;
 		this.r = r;
 		theta = th;
@@ -55,7 +55,9 @@ public final class KerrMotion {
 	private void updateIntermediates () {
 		r2 = r * r;
 		ra2 = r2 + a2;
-		sth = Math.sin(theta);
+		double limit = 0.0;
+		double tmp = Math.sin(theta);
+		sth = Math.abs(tmp) > limit ? tmp : limit * Math.signum(tmp);
 		cth = Math.cos(theta);
 		sth2 = sth * sth;
 		assert sth2 > 0.0 : "ZERO DIVISOR: sin(theta), theta = " + theta;
@@ -67,19 +69,21 @@ public final class KerrMotion {
 		assert sigma > 0.0 : "ZERO DIVISOR: sigma, r = " + r + ", theta = " + theta;
 		delta = ra2 - 2.0 * M * r;
 		assert delta > 0.0 : "ZERO DIVISOR: delta, r = " + r;
-		P = ra2 * E - a * Lz;  // MTW eq.33.33b
+		P1 = ra2 * E - a * L;  // MTW eq.33.33b
 		P2 = mu2 * r2 + lmae2 + CC;
-		R = P * P - delta * P2;
-		TH = a2 * (mu2 - E * E) + Lz * Lz /sth2;
+		R = P1 * P1 - delta * P2;
+		assert R > 0.0 : "R potential = " + R;
+		TH = a2 * (mu2 - E * E) + L * L /sth2;
 		THETA = CC - cth2 * TH;
+		assert THETA > 0.0 : "THETA potential = " + THETA;
 	}
 	
 	private double uT () {  // MTW eq.33.32d
-		return ra2 * P / delta - a * (a * E * sth2 - Lz);
+		return ra2 * P1 / delta - a * (a * E * sth2 - L);
 	}
 	
 	private double uPh () {  // MTW eq.33.32c
-		return a * P / delta - (a * E - Lz / sth2);
+		return a * P1 / delta - (a * E - L / sth2);
 	}
 	
 	private double hR () {
@@ -98,15 +102,15 @@ public final class KerrMotion {
 		double cStep = c * step;
 		t -= cStep * uT();
 		r += cStep * rDot;
-		theta = (theta + cStep * thDot) % TWOPI;
-		phi = (phi + cStep * uPh()) % TWOPI;
+		theta += cStep * thDot;
+		phi += cStep * uPh();
 		updateIntermediates();
 	}
 	
 	void updateP (double c) {
 		double cStep = c * step;
-		rDot += cStep * (2.0 * r * E * P - P2 * (r - M) - mu2 * r * delta);
-		thDot += cStep * (csth * TH + Lz * Lz * cth3 / sth3);
+		rDot += cStep * (2.0 * r * E * P1 - P2 * (r - M) - mu2 * r * delta);
+		thDot += cStep * (csth * TH + L * L * cth3 / sth3);
 	}
 	
 	public void simulate () {
