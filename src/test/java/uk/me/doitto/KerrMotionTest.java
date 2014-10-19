@@ -37,7 +37,7 @@ public class KerrMotionTest {
 		new KerrMotion(1.0, 1.0, 1.0, 0.962250448649377, 2.4, 3.0, 12.0, Math.PI / 2.0, 0.0, 100.0, 0.01, 6).simulate();
     }
 
-    @Ignore
+//    @Ignore
     @Test
     public void plummet () {
 		new KerrMotion(1.0, 0.0, 1.0, 1.0, 0.0, 0.0, 100.0, Math.PI / 2.0, 0.0, 100.0, 0.01, 2).simulate();
@@ -91,37 +91,37 @@ public class KerrMotionTest {
 		new KerrMotion(1.0, a, 1.0, E, 0.0, K - a * a * E * E, 10.0, Math.PI / 2.0, 0.0, 100.0, 0.01, 2).simulate();
     }
 
-    @Ignore
+//    @Ignore
     @Test
     public void first () {
 		new KerrMotion(1.0, 1.0, 1.0, 0.962250448649377, 0.6 * 4.0, 1.0, 12.0, Math.PI / 2.0, 0.0, 100.0, 0.01, 2).simulate();
     }
 
-    @Ignore
+//    @Ignore
     @Test
     public void second () {
 		new KerrMotion(1.0, -1.0, 1.0, 1.0, 0.0, 0.0, 12.0, Math.PI / 2.0, 0.0, 100.0, 0.01, 2).simulate();
     }
 
-    @Ignore
+//    @Ignore
     @Test
     public void third () {
 		new KerrMotion(1.0, -1.0, 1.0, 0.962250448649377, 0.6 * 4.0, 1.0, 12.0, Math.PI / 2.0, 0.0, 100.0, 0.01, 2).simulate();
     }
 
-    @Ignore
+//    @Ignore
     @Test
     public void fourth () {
 		new KerrMotion(1.0, -1.0, 1.0, 0.989352727272727, -4.683, 0.0, 12.201, Math.PI / 2.0, 0.0, 100.0, 0.01, 2).simulate();
     }
 
-    @Ignore
+//    @Ignore
     @Test
     public void fifth () {
 		new KerrMotion(1.0, -1.0, 1.0, 1.0, 4.0, 0.0, 4.0, Math.PI / 2.0, 0.0, 100.0, 0.01, 2).simulate();
     }
 
-    @Ignore
+//    @Ignore
     @Test
     public void sixth () {
 		new KerrMotion(1.0, -1.0, 1.0, 0.966, 4.066, 2.0, 17.488, Math.PI / 2.0, 0.0, 100.0, 0.01, 2).simulate();

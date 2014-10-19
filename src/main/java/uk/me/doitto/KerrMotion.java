@@ -72,10 +72,12 @@ public final class KerrMotion {
 		P1 = ra2 * E - a * L;  // MTW eq.33.33b
 		P2 = mu2 * r2 + lmae2 + CC;
 		R = P1 * P1 - delta * P2;
-		assert R > 0.0 : "R potential = " + R;
+		R = R >= 0.0 ? R: 0.0;
+		assert R >= 0.0 : "R potential = " + R;
 		TH = a2 * (mu2 - E * E) + L * L /sth2;
 		THETA = CC - cth2 * TH;
-		assert THETA > 0.0 : "THETA potential = " + THETA;
+		THETA = THETA >= 0.0 ? THETA: 0.0;
+		assert THETA >= 0.0 : "THETA potential = " + THETA;
 	}
 	
 	private double uT () {  // MTW eq.33.32d
