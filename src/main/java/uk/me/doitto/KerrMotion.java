@@ -15,13 +15,11 @@ import static uk.me.doitto.Integrator.STORMER_VERLET_8;
  */
 public final class KerrMotion {
 	
-	private static final double TWOPI = 2.0 * Math.PI;
-	
 	private final double M, a, horizon, mu2, E, L, CC, time, step, a2, lmae2; // constants for this spacetime
 	
 	private double r2, ra2, sth, cth, sth2, cth2, sth3, cth3, csth, sigma, delta, R, P1, P2, THETA, TH;  // intermediate variables
 	
-	private double tau, t, r, theta, phi, rDot, thDot, x, y, z; // coordinates etc.
+	private double tau, t, r, theta, phi, rDot, thDot; // coordinates etc.
 	
 	private Integrator symplectic;
 	
@@ -68,16 +66,12 @@ public final class KerrMotion {
 		sigma = r2 + a2 * cth2;
 		assert sigma > 0.0 : "ZERO DIVISOR: sigma, r = " + r + ", theta = " + theta;
 		delta = ra2 - 2.0 * M * r;
-		assert delta > 0.0 : "ZERO DIVISOR: delta, r = " + r;
+//		assert delta > 0.0 : "ZERO DIVISOR: delta, r = " + r;
 		P1 = ra2 * E - a * L;  // MTW eq.33.33b
 		P2 = mu2 * r2 + lmae2 + CC;
 		R = P1 * P1 - delta * P2;
-		R = R >= 0.0 ? R: 0.0;
-		assert R >= 0.0 : "R potential = " + R;
 		TH = a2 * (mu2 - E * E) + L * L /sth2;
 		THETA = CC - cth2 * TH;
-		THETA = THETA >= 0.0 ? THETA: 0.0;
-		assert THETA >= 0.0 : "THETA potential = " + THETA;
 	}
 	
 	private double uT () {  // MTW eq.33.32d
@@ -117,8 +111,8 @@ public final class KerrMotion {
 	
 	public void simulate () {
 		updateIntermediates();
-		rDot = Math.sqrt(R);  // MTW eq.33.32b and 33.33c
-		thDot = Math.sqrt(THETA);  // MTW eq.33.32a and 33.33a
+		rDot = -Math.sqrt(R >= 0.0 ? R: 0.0);  // MTW eq.33.32b and 33.33c
+		thDot = Math.sqrt(THETA >= 0.0 ? THETA: 0.0);  // MTW eq.33.32a and 33.33a
 		symplectic.init();
 		do {
 			double ra = Math.sqrt(ra2);

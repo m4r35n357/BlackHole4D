@@ -40,7 +40,7 @@ public class KerrMotionTest {
 //    @Ignore
     @Test
     public void plummet () {
-		new KerrMotion(1.0, 0.0, 1.0, 1.0, 0.0, 0.0, 100.0, Math.PI / 2.0, 0.0, 100.0, 0.01, 2).simulate();
+		new KerrMotion(1.0, 0.0, 1.0, 1.0, 0.0, 0.0, 20.0, Math.PI / 2.0, 0.0, 100.0, 0.001, 2).simulate();
     }
 
     @Test
