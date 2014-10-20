@@ -99,7 +99,6 @@ public final class KerrMotion {
 	void update () {
 		t -= step * uT();
 		phi += step * uPh();
-		updateIntermediates();
 	}
 	
 	void updateQ (double c) {
