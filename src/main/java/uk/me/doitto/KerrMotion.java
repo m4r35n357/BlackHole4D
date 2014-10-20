@@ -96,19 +96,21 @@ public final class KerrMotion {
 		return 10.0 * Math.log10(e);
 	}
 	
+	void update () {
+		t -= step * uT();
+		phi += step * uPh();
+		updateIntermediates();
+	}
+	
 	void updateQ (double c) {
-		double cStep = c * step;
-		t -= cStep * uT();
-		r += cStep * rDot;
-		theta += cStep * thDot;
-		phi += cStep * uPh();
+		r += c * step * rDot;
+		theta += c * step * thDot;
 		updateIntermediates();
 	}
 	
 	void updateP (double c) {
-		double cStep = c * step;
-		rDot += cStep * (2.0 * r * E * P1 - P2 * (r - M) - mu2 * r * delta);
-		thDot += cStep * (csth * TH + L * L * cth3 / sth3);
+		rDot += c * step * (2.0 * r * E * P1 - P2 * (r - M) - mu2 * r * delta);
+		thDot += c * step * (csth * TH + L * L * cth3 / sth3);
 	}
 	
 	public double simulate () {
@@ -120,6 +122,7 @@ public final class KerrMotion {
 			double ra = Math.sqrt(ra2);
 			System.out.printf("{\"mino\":%.9e, \"tau\":%.9e, \"H\":%.1f, \"HR\":%.1f, \"HTh\":%.1f, \"t\":%.9e, \"r\":%.9e, \"th\":%.9e, \"ph\":%.9e, \"R\":%.9e, \"THETA\":%.9e, \"uT\":%.9e, \"uR\":%.9e, \"uTh\":%.9e, \"uPh\":%.9e, \"x\":%.9e, \"y\":%.9e, \"z\":%.9e}%n", tau, sigma * tau, h(), hR(), hTh(), - t, r, theta, phi, R, THETA, uT(), rDot, thDot, uPh(), ra * sth * Math.cos(phi), ra * sth * Math.sin(phi), r * cth);
 			tau += step;
+			update();
 			symplectic.solve(this);
 		} while (r > horizon && tau <= time);  // outside horizon and in proper time range
 		return error;
