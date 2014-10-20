@@ -26,11 +26,11 @@ public class KerrMotionTest {
 
 	@Test
     public void polar1 () {
-		assertTrue(new KerrMotion(1.0, 1.0, 1.0, 0.9558, 0.035991, 14.119546, 10.0, Math.PI / 2.0, 0.0, 10.0, 0.001, 8).simulate() < 1.0e-3);
+		assertTrue(new KerrMotion(1.0, 1.0, 1.0, 0.9558, 0.035991, 14.119546, 10.0, Math.PI / 2.0, 0.0, 10.0, 0.001, 8).simulate() < 1.0);
 	}
 
     @Test
-    public void Polar2 () {
+    public void polar2 () {
     	double K = 14.783;
     	double a = 0.8;
     	double E = 0.956;
@@ -41,6 +41,11 @@ public class KerrMotionTest {
     public void complex () {
     	assertTrue(new KerrMotion(1.0, 1.0, 1.0, 0.962250448649377, 2.4, 3.0, 12.0, Math.PI / 2.0, 0.0, 10.0, 0.001, 6).simulate() < 1.0e-3);
     }
+
+   @Test
+   public void interesting () {
+   		assertTrue(new KerrMotion(1.0, 1.0, 1.0, 0.96, 1.98, 6.8, 12.0, Math.PI / 2.0, 0.0, 10.0, 0.001, 6).simulate() < 1.0e-3);
+   }
 
     @Test
     public void plummet () {
