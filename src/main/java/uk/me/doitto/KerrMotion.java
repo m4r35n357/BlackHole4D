@@ -79,7 +79,7 @@ public final class KerrMotion {
 	}
 	
 	private double uPh () {  // MTW eq.33.32c
-		return a * P1 / delta - (a * E - L / sth2);
+		return a * P1 / delta - a * E + L / sth2;
 	}
 	
 	private double hR () {
