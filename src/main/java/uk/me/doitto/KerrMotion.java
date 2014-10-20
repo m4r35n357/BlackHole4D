@@ -3,6 +3,12 @@
  */
 package uk.me.doitto;
 
+import static java.lang.Math.abs;
+import static java.lang.Math.cos;
+import static java.lang.Math.log10;
+import static java.lang.Math.signum;
+import static java.lang.Math.sin;
+import static java.lang.Math.sqrt;
 import static uk.me.doitto.Integrator.STORMER_VERLET_10;
 import static uk.me.doitto.Integrator.STORMER_VERLET_2;
 import static uk.me.doitto.Integrator.STORMER_VERLET_4;
@@ -15,11 +21,11 @@ import static uk.me.doitto.Integrator.STORMER_VERLET_8;
  */
 public final class KerrMotion {
 	
-	private final double M, a, horizon, mu2, E, L, CC, time, step, a2, lmae2; // constants for this spacetime
+	private final double M, a, horizon, mu2, E, L, CC, time, ts, a2, lmae2; // constants for this spacetime
 	
 	private double r2, ra2, sth, cth, sth2, cth2, sth3, cth3, csth, sigma, delta, R, P1, P2, THETA, TH;  // intermediate variables
 	
-	private double tau, t, r, theta, phi, rDot, thDot, error; // coordinates etc.
+	private double tau, t, r, theta, phi, rDot, thDot, eCum, e, eR, eTh; // coordinates etc.
 	
 	private Integrator symplectic;
 	
@@ -37,7 +43,7 @@ public final class KerrMotion {
 		theta = th;
 		phi = ph;
 		time = T;
-		step = ts;
+		this.ts = ts;
 		switch (order) {
 			case 2: symplectic = STORMER_VERLET_2; break;
 			case 4: symplectic = STORMER_VERLET_4; break;
@@ -46,7 +52,7 @@ public final class KerrMotion {
 			case 10: symplectic = STORMER_VERLET_10; break;
 		}
 		a2 = a * a;
-		horizon = M * (1.0 + Math.sqrt(1.0 - a2));
+		horizon = M * (1.0 + sqrt(1.0 - a2));
 		lmae2 = (L - a * E) * (L - a * E);
 	}
 
@@ -54,9 +60,9 @@ public final class KerrMotion {
 		r2 = r * r;
 		ra2 = r2 + a2;
 		double limit = 0.0;
-		double tmp = Math.sin(theta);
-		sth = Math.abs(tmp) > limit ? tmp : limit * Math.signum(tmp);
-		cth = Math.cos(theta);
+		double tmp = sin(theta);
+		sth = abs(tmp) > limit ? tmp : limit * signum(tmp);
+		cth = cos(theta);
 		sth2 = sth * sth;
 		assert sth2 > 0.0 : "ZERO DIVISOR: sin(theta), theta = " + theta;
 		sth3 = sth2 * sth;
@@ -74,56 +80,44 @@ public final class KerrMotion {
 		THETA = CC - cth2 * TH;
 	}
 	
-	private double uT () {  // MTW eq.33.32d
-		return ra2 * P1 / delta - a * (a * E * sth2 - L);
+	private void errors () {
+		double er = abs(rDot * rDot - R) / 2.0;
+		double eth = abs(thDot * thDot - THETA) / 2.0;
+		eR = 10.0 * log10(er + 1.0e-18);
+		eTh = 10.0 * log10(eth + 1.0e-18);
+		e =  10.0 * log10(er + eth + 1.0e-18);
+		eCum += er + eth;
 	}
 	
-	private double uPh () {  // MTW eq.33.32c
-		return a * P1 / delta - a * E + L / sth2;
-	}
-	
-	private double hR () {
-		return 10.0 * Math.log10(Math.abs(rDot * rDot - R) / 2.0);
-	}
-	
-	private double hTh () {
-		return 10.0 * Math.log10(Math.abs(thDot * thDot - THETA) / 2.0);
-	}
-	
-	private double h () {
-		double e = Math.abs(rDot * rDot - R) / 2.0 + Math.abs(thDot * thDot - THETA) / 2.0;
-		error += e;
-		return 10.0 * Math.log10(e);
-	}
-	
-	void update () {
-		t -= step * uT();
-		phi += step * uPh();
+	void update_T_Phi () {
+		t -= ts * (ra2 * P1 / delta - a * (a * E * sth2 - L));  // MTW eq.33.32d
+		phi += ts * (a * P1 / delta - a * E + L / sth2);  // MTW eq.33.32c
 	}
 	
 	void updateQ (double c) {
-		r += c * step * rDot;
-		theta += c * step * thDot;
+		r += c * ts * rDot;
+		theta += c * ts * thDot;
 		updateIntermediates();
 	}
 	
 	void updateP (double c) {
-		rDot += c * step * (2.0 * r * E * P1 - P2 * (r - M) - mu2 * r * delta);
-		thDot += c * step * (csth * TH + L * L * cth3 / sth3);
+		rDot += c * ts * (2.0 * r * E * P1 - P2 * (r - M) - mu2 * r * delta);  // see Maxima file bh.wxm, Mino Time
+		thDot += c * ts * (csth * TH + L * L * cth3 / sth3);  // see Maxima file bh.wxm, Mino Time
 	}
 	
 	public double simulate () {
 		updateIntermediates();
-		rDot = -Math.sqrt(R >= 0.0 ? R: 0.0);  // MTW eq.33.32b and 33.33c
-		thDot = -Math.sqrt(THETA >= 0.0 ? THETA: 0.0);  // MTW eq.33.32a and 33.33a
+		rDot = -sqrt(R >= 0.0 ? R: 0.0);  // MTW eq.33.32b and 33.33c
+		thDot = -sqrt(THETA >= 0.0 ? THETA: 0.0);  // MTW eq.33.32a and 33.33a
 		symplectic.init();
 		do {
-			double ra = Math.sqrt(ra2);
-			System.out.printf("{\"mino\":%.9e, \"tau\":%.9e, \"H\":%.1f, \"HR\":%.1f, \"HTh\":%.1f, \"t\":%.9e, \"r\":%.9e, \"th\":%.9e, \"ph\":%.9e, \"R\":%.9e, \"THETA\":%.9e, \"uT\":%.9e, \"uR\":%.9e, \"uTh\":%.9e, \"uPh\":%.9e, \"x\":%.9e, \"y\":%.9e, \"z\":%.9e}%n", tau, sigma * tau, h(), hR(), hTh(), - t, r, theta, phi, R, THETA, uT(), rDot, thDot, uPh(), ra * sth * Math.cos(phi), ra * sth * Math.sin(phi), r * cth);
-			tau += step;
-			update();
+			errors();
+			double ra = sqrt(ra2);
+			System.out.printf("{\"mino\":%.9e, \"tau\":%.9e, \"H\":%.1f, \"HR\":%.1f, \"HTh\":%.1f, \"t\":%.9e, \"r\":%.9e, \"th\":%.9e, \"ph\":%.9e, \"R\":%.9e, \"THETA\":%.9e, \"uR\":%.9e, \"uTh\":%.9e, \"x\":%.9e, \"y\":%.9e, \"z\":%.9e}%n", tau, sigma * tau, e, eR, eTh, - t, r, theta, phi, R, THETA, rDot, thDot, ra * sth * cos(phi), ra * sth * sin(phi), r * cth);
+			tau += ts;
+			update_T_Phi();
 			symplectic.solve(this);
 		} while (r > horizon && tau <= time);  // outside horizon and in proper time range
-		return error;
+		return eCum;
 	}
 }
