@@ -19,7 +19,7 @@ public final class KerrMotion {
 	
 	private double r2, ra2, sth, cth, sth2, cth2, sth3, cth3, csth, sigma, delta, R, P1, P2, THETA, TH;  // intermediate variables
 	
-	private double tau, t, r, theta, phi, rDot, thDot; // coordinates etc.
+	private double tau, t, r, theta, phi, rDot, thDot, error; // coordinates etc.
 	
 	private Integrator symplectic;
 	
@@ -91,7 +91,9 @@ public final class KerrMotion {
 	}
 	
 	private double h () {
-		return 10.0 * Math.log10(Math.abs(rDot * rDot - R) / 2.0 + Math.abs(thDot * thDot - THETA) / 2.0);
+		double e = Math.abs(rDot * rDot - R) / 2.0 + Math.abs(thDot * thDot - THETA) / 2.0;
+		error += e;
+		return 10.0 * Math.log10(e);
 	}
 	
 	void updateQ (double c) {
@@ -109,10 +111,10 @@ public final class KerrMotion {
 		thDot += cStep * (csth * TH + L * L * cth3 / sth3);
 	}
 	
-	public void simulate () {
+	public double simulate () {
 		updateIntermediates();
 		rDot = -Math.sqrt(R >= 0.0 ? R: 0.0);  // MTW eq.33.32b and 33.33c
-		thDot = Math.sqrt(THETA >= 0.0 ? THETA: 0.0);  // MTW eq.33.32a and 33.33a
+		thDot = -Math.sqrt(THETA >= 0.0 ? THETA: 0.0);  // MTW eq.33.32a and 33.33a
 		symplectic.init();
 		do {
 			double ra = Math.sqrt(ra2);
@@ -120,5 +122,6 @@ public final class KerrMotion {
 			tau += step;
 			symplectic.solve(this);
 		} while (r > horizon && tau <= time);  // outside horizon and in proper time range
+		return error;
 	}
 }
