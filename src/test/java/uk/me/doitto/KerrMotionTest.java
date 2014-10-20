@@ -43,7 +43,7 @@ public class KerrMotionTest {
 
    @Test
    public void interesting () {
-   		assertTrue(new KerrMotion(1.0, 1.0, 1.0, 0.96, 1.98, 6.8, 12.0, Math.PI / 2.0, 0.0, 10.0, 0.001, 6).simulate() < 1.0e-3);
+   		assertTrue(new KerrMotion(1.0, 1.0, 1.0, 0.96, 1.98, 6.8, 12.0, Math.PI / 2.0, 0.0, 10.0, 0.001, 4).simulate() < 1.0e-3);
    }
 
     @Test

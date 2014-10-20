@@ -81,12 +81,12 @@ public final class KerrMotion {
 	}
 	
 	private void errors () {
-		double er = abs(rDot * rDot - R) / 2.0;
-		double eth = abs(thDot * thDot - THETA) / 2.0;
-		eR = 10.0 * log10(er + 1.0e-18);
-		eTh = 10.0 * log10(eth + 1.0e-18);
-		e =  10.0 * log10(er + eth + 1.0e-18);
-		eCum += er + eth;
+		double e_r = abs(rDot * rDot - R) / 2.0;
+		double e_th = abs(thDot * thDot - THETA) / 2.0;
+		eR = 10.0 * log10(e_r + 1.0e-18);
+		eTh = 10.0 * log10(e_th + 1.0e-18);
+		e =  10.0 * log10(e_r + e_th + 1.0e-18);
+		eCum += e_r + e_th;
 	}
 	
 	void update_T_Phi () {
@@ -113,7 +113,8 @@ public final class KerrMotion {
 		do {
 			errors();
 			double ra = sqrt(ra2);
-			System.out.printf("{\"mino\":%.9e, \"tau\":%.9e, \"H\":%.1f, \"HR\":%.1f, \"HTh\":%.1f, \"t\":%.9e, \"r\":%.9e, \"th\":%.9e, \"ph\":%.9e, \"R\":%.9e, \"THETA\":%.9e, \"uR\":%.9e, \"uTh\":%.9e, \"x\":%.9e, \"y\":%.9e, \"z\":%.9e}%n", tau, sigma * tau, e, eR, eTh, - t, r, theta, phi, R, THETA, rDot, thDot, ra * sth * cos(phi), ra * sth * sin(phi), r * cth);
+			System.out.printf("{\"mino\":%.9e, \"tau\":%.9e, \"E\":%.1f, \"ER\":%.1f, \"ETh\":%.1f, \"t\":%.9e, \"r\":%.9e, \"th\":%.9e, \"ph\":%.9e, \"R\":%.9e, \"THETA\":%.9e, \"x\":%.9e, \"y\":%.9e, \"z\":%.9e}%n",
+					tau, sigma * tau, e, eR, eTh, - t, r, theta, phi, R, THETA, ra * sth * cos(phi), ra * sth * sin(phi), r * cth);
 			tau += ts;
 			update_T_Phi();
 			symplectic.solve(this);
