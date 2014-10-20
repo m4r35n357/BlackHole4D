@@ -61,10 +61,8 @@ public final class KerrMotion {
 		sth = sin(theta);
 		cth = cos(theta);
 		sth2 = sth * sth;
-		assert sth2 > 0.0 : "ZERO DIVISOR: sin(theta), theta = " + theta;
 		cth2 = cth * cth;
 		delta = ra2 - 2.0 * M * r;
-		assert delta > 0.0 : "ZERO DIVISOR: delta, r = " + r;
 		P1 = ra2 * E - a * L;  // MTW eq.33.33b
 		P2 = mu2 * r2 + lmae2 + CC;
 		R = P1 * P1 - delta * P2;

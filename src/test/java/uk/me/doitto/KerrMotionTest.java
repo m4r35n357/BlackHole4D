@@ -48,10 +48,7 @@ public class KerrMotionTest {
 
     @Test
     public void plummetAZero () {
-    	try {
-        	assertTrue(new KerrMotion(1.0, 0.0, 1.0, 1.0, 0.0, 0.0, 20.0, Math.PI / 2.0, 0.0, 100.0, 0.001, 8).simulate() < 1.0e-3);
-    	} catch (AssertionError e) {
-    	}
+       	assertTrue(new KerrMotion(1.0, 0.0, 1.0, 1.0, 0.0, 0.0, 20.0, Math.PI / 2.0, 0.0, 100.0, 0.001, 8).simulate() < 1.0e-3);
     }
 
     @Test
@@ -111,10 +108,7 @@ public class KerrMotionTest {
 
     @Test
     public void messyInfall () {
-    	try {
-        	assertTrue(new KerrMotion(1.0, 0.0, 1.0, 0.95, 1.5, 7.0, 14.64473, Math.PI / 2.0, 0.0, 10.0, 0.001, 8).simulate() < 1.0e-3);
-    	} catch (AssertionError e) {
-    	}
+       	assertTrue(new KerrMotion(1.0, 0.0, 1.0, 0.95, 1.5, 7.0, 14.64473, Math.PI / 2.0, 0.0, 10.0, 0.001, 8).simulate() < 1.0e-3);
     }
 
     @Test
@@ -124,7 +118,7 @@ public class KerrMotionTest {
 
     @Test
     public void infallAMinus () {
-    	assertTrue(new KerrMotion(1.0, -1.0, 1.0, 0.962250448649377, 0.6 * 4.0, 1.0, 12.0, Math.PI / 2.0, 0.0, 10.0, 0.001, 8).simulate() < 1.0e-3);
+    	assertTrue(new KerrMotion(1.0, -1.0, 1.0, 0.962250448649377, 0.6 * 4.0, 1.0, 12.0, Math.PI / 2.0, 0.0, 10.0, 0.001, 6).simulate() < 1.0e-3);
     }
 
     @Test
