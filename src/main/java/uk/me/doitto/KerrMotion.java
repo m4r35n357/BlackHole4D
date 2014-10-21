@@ -31,7 +31,7 @@ public final class KerrMotion {
 	/**
 	 * Constructor, constants and initial conditions
 	 */
-	public KerrMotion (double mass, double spin, double m, double E, double L, double C, double r, double th, double ph, double T, double ts, int order) {
+	public KerrMotion (double mass, double spin, double m, double E, double L, double C, double r, double th, double T, double ts, int order) {
 		M = mass;
 		a = spin;
 		mu2 = m;
@@ -40,7 +40,6 @@ public final class KerrMotion {
 		CC = C;
 		this.r = r;
 		theta = th;
-		phi = ph;
 		duration = T;
 		this.ts = ts;
 		switch (order) {

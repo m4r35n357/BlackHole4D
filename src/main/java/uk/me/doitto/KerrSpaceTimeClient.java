@@ -87,24 +87,23 @@ public class KerrSpaceTimeClient {
 		Double K = (Double)ic.get("K");
 		Double r = (Double)ic.get("r");
 		Double theta = (Double)ic.get("theta");
-		Double phi = (Double)ic.get("phi");
 		Double time = (Double)ic.get("time");
 		Double step = (Double)ic.get("step");
 		int order = ((Long)ic.get("integratorOrder")).intValue();
 		if (K != null) {  // circular polar if Lz == 0.0
-			return new KerrMotion (M, a, mu, E, Lz, K - a * a * E * E, r, theta, phi, time, step, order);
+			return new KerrMotion (M, a, mu, E, Lz, K - a * a * E * E, r, theta, time, step, order);
 		} else if (E == null && Lz == null && C == null) {  // constant radius
 			equatorial(r, a);
 			System.err.println("E: " + this.E + ", Lz: " + this.Lz);
 			constR(M, r, a);
 			System.err.println("E: " + this.E + ", Lz: " + this.Lz + ", CC: " + this.C);
-			return new KerrMotion (M, a, mu, this.E, this.Lz, this.C, r, theta, phi, time, step, order);
+			return new KerrMotion (M, a, mu, this.E, this.Lz, this.C, r, theta, time, step, order);
 		} else if (E == null && Lz == null && C == 0.0) {  // circular equatorial if C == 0.0
 			equatorial(r, a);
 			System.err.println("E: " + this.E + ", Lz: " + this.Lz);
-			return new KerrMotion (M, a, mu, this.E, this.Lz, C, r, theta, phi, time, step, order);
+			return new KerrMotion (M, a, mu, this.E, this.Lz, C, r, theta, time, step, order);
 		} else {
-			return new KerrMotion (M, a, mu, E, Lz, C, r, theta, phi, time, step, order);
+			return new KerrMotion (M, a, mu, E, Lz, C, r, theta, time, step, order);
 		}
 	}
 	
