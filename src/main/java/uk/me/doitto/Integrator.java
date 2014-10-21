@@ -1,5 +1,7 @@
 package uk.me.doitto;
 
+import static java.lang.Math.pow;
+
 /**
  * @author ian
  * <p>
@@ -22,7 +24,7 @@ public enum Integrator {
 	STORMER_VERLET_4 {
 		@Override
 		protected void init() {
-			double CUBE_ROOT_2 = Math.pow(2.0, 1.0 / 3.0);
+			double CUBE_ROOT_2 = pow(2.0, 1.0 / 3.0);
 			double y = 1.0 / (2.0 - CUBE_ROOT_2);
 			double[] coefficients = {y, - y * CUBE_ROOT_2};
 			this.coefficients = coefficients;

@@ -25,6 +25,8 @@ package uk.me.doitto;
  * #L%
  */
 
+import static java.lang.Math.sqrt;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -44,8 +46,8 @@ public class KerrSpaceTimeClient {
 	double E, Lz, C;
 	
 	private void equatorial (double r, double a) {  // L and E for a circular orbit of r
-		double sqrtR = Math.sqrt(r);
-		double tmp = Math.sqrt(r * r - 3.0 * r + 2.0 * a * sqrtR);
+		double sqrtR = sqrt(r);
+		double tmp = sqrt(r * r - 3.0 * r + 2.0 * a * sqrtR);
 		Lz = (r * r - 2.0 * a * sqrtR + a * a) / (sqrtR * tmp);
 		E = (r * r - 2.0 * r + a * sqrtR) / (r * tmp);
 	}
@@ -58,9 +60,9 @@ public class KerrSpaceTimeClient {
 		double M2r = 2 * M * r;
 		double E2 = E * E;
 		double M2 = M * M;
-		Lz = B * (M * E * (a2 - r2) + (a2 + r2 - M2r) * Math.sqrt(r2 * E2 + r * (M - r)));
+		Lz = B * (M * E * (a2 - r2) + (a2 + r2 - M2r) * sqrt(r2 * E2 + r * (M - r)));
 		C = r2 * B * B * ((1 - E2) * r4 + (4 * M * E2 - 5 * M) * r2 * r + (8 - 5 * E2) * M2 * r2 +
-				(2 * a2 * E2 - a2 - 4 * M2) * M * r + a2 * M2 + 2 * M * E * (a2 + r2 - M2r) * Math.sqrt(r * (M - r + r * E2)));
+				(2 * a2 * E2 - a2 - 4 * M2) * M * r + a2 * M2 + 2 * M * E * (a2 + r2 - M2r) * sqrt(r * (M - r + r * E2)));
 	}
 	
 	/**

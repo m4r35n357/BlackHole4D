@@ -24,7 +24,7 @@ public final class KerrMotion {
 	
 	private double r2, ra2, sth, cth, sth2, cth2, delta, R, P1, P2, THETA, TH;  // intermediate variables
 	
-	private double mino, t, r, theta, phi, rDot, thDot, eCum, e, eR, eTh; // coordinates etc.
+	private double mino, t, r, th, ph, rDot, thDot, eCum, e, eR, eTh; // coordinates etc.
 	
 	private Integrator symplectic;
 	
@@ -39,7 +39,7 @@ public final class KerrMotion {
 		this.L = L;
 		CC = C;
 		this.r = r;
-		theta = th;
+		this.th = th;
 		duration = T;
 		this.ts = ts;
 		switch (order) {
@@ -57,8 +57,8 @@ public final class KerrMotion {
 	private void updateIntermediates () {
 		r2 = r * r;
 		ra2 = r2 + a2;
-		sth = sin(theta);
-		cth = cos(theta);
+		sth = sin(th);
+		cth = cos(th);
 		sth2 = sth * sth;
 		cth2 = cth * cth;
 		delta = ra2 - 2.0 * M * r;
@@ -78,14 +78,14 @@ public final class KerrMotion {
 		eCum += e_r + e_th;
 	}
 	
-	void update_T_Phi () {
+	private void update_T_Phi () {
 		t -= ts * (ra2 * P1 / delta - a * (a * E * sth2 - L));  // MTW eq.33.32d
-		phi += ts * (a * P1 / delta - a * E + L / sth2);  // MTW eq.33.32c
+		ph += ts * (a * P1 / delta - a * E + L / sth2);  // MTW eq.33.32c
 	}
 	
 	void updateQ (double c) {
 		r += c * ts * rDot;
-		theta += c * ts * thDot;
+		th += c * ts * thDot;
 		updateIntermediates();
 	}
 	
@@ -103,7 +103,7 @@ public final class KerrMotion {
 			errors();
 			double ra = sqrt(ra2);
 			System.out.printf("{\"mino\":%.9e, \"tau\":%.9e, \"E\":%.1f, \"ER\":%.1f, \"ETh\":%.1f, \"t\":%.9e, \"r\":%.9e, \"th\":%.9e, \"ph\":%.9e, \"R\":%.9e, \"THETA\":%.9e, \"x\":%.9e, \"y\":%.9e, \"z\":%.9e}%n",
-					mino, (r2 + a2 * cth2) * mino, e, eR, eTh, - t, r, theta, phi, R, THETA, ra * sth * cos(phi), ra * sth * sin(phi), r * cth);
+					mino, (r2 + a2 * cth2) * mino, e, eR, eTh, - t, r, th, ph, R, THETA, ra * sth * cos(ph), ra * sth * sin(ph), r * cth);
 			mino += ts;
 			update_T_Phi();
 			symplectic.solve(this);
