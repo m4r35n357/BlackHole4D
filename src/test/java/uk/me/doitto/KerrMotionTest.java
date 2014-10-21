@@ -125,4 +125,9 @@ public class KerrMotionTest {
     public void precessingAMinus () {
     	assertTrue(new KerrMotion(1.0, -1.0, 1.0, 0.989352727272727, -4.683, 0.0, 12.201, Math.PI / 2.0, 0.0, 10.0, 0.001, 8).simulate() < 1.0e-3);
     }
+
+    @Test
+    public void spherical () {
+    	assertTrue(new KerrMotion(1.0, 0.95, 1.0, 0.9, 1.707058, 4.021303, 4.0, Math.PI / 2.0, 0.0, 10.0, 0.01, 6).simulate() < 1.0e-3);
+    }
 }
