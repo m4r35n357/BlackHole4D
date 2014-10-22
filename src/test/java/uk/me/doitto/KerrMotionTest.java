@@ -185,8 +185,14 @@ public class KerrMotionTest {
     }
 
     @Test
-    public void spherical () {
+    public void spherical1 () {
     	double error = new KerrMotion(1.0, 0.95, 1.0, 0.9, 1.707058, 4.021303, 4.0, PI / 2.0, 10.0, 0.01, 6).simulate();
     	assertTrue(error < 1.0e-7);
+    }
+
+    @Test
+    public void spherical2 () {
+    	double error = new KerrMotion(1.0, 1.0, 1.0, 0.9601, -2.667245, 9.381218, 10.0, PI / 2.0, 10.0, 0.01, 6).simulate();
+    	assertTrue(error < 1.0e-5);
     }
 }

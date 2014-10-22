@@ -79,7 +79,7 @@ public final class KerrMotion {
 	}
 	
 	private void update_t_phi () {
-		t -= ts * (ra2 * P1 / delta - a * (a * E * sth2 - L));  // MTW eq.33.32d
+		t -= ts * (ra2 * P1 / delta + a * L - a * a * E * sth2);  // MTW eq.33.32d
 		ph += ts * (a * P1 / delta - a * E + L / sth2);  // MTW eq.33.32c
 	}
 	
