@@ -25,6 +25,45 @@ public class KerrMotionTest {
 		E = (r * r - 2.0 * r + a * sqrtR) / (r * tmp);
 	}
 
+	/**
+	 * light 1-6: Edward Teo, Spherical photon orbits around a Kerr black hole
+	 */
+	@Test
+    public void light1 () {
+		double error = new KerrMotion(1.0, 1.0, 0.0, 1.0, 0.0, 22.31370849898476, 2.414213562373095, PI / 2.0, 10.0, 0.001, 8).simulate();
+		assertTrue(error < 1.0e-8);
+	}
+
+	@Test
+    public void light2 () {
+		double error = new KerrMotion(1.0, 1.0, 0.0, 1.0, -1.0, 25.856406460551018, 2.732050807568877, PI / 2.0, 10.0, 0.001, 8).simulate();
+		assertTrue(error < 1.0e-8);
+	}
+
+	@Test
+    public void light3 () {
+		double error = new KerrMotion(1.0, 1.0, 0.0, 1.0, -2.0, 27.0, 3.0, PI / 2.0, 10.0, 0.001, 8).simulate();
+		assertTrue(error < 1.0e-8);
+	}
+
+	@Test
+    public void light4 () {
+		double error = new KerrMotion(1.0, 1.0, 0.0, 1.0, -6.0, 9.627416997969522, 3.8284271247461903, PI / 2.0, 10.0, 0.001, 8).simulate();
+		assertTrue(error < 1.0e-8);
+	}
+
+	@Test
+    public void light5 () {
+		double error = new KerrMotion(1.0, 1.0, 0.0, 1.0, 1.0, 16.0, 2.0, PI / 2.0, 10.0, 0.001, 8).simulate();
+		assertTrue(error < 1.0e-8);
+	}
+
+	@Test
+    public void light6 () {
+		double error = new KerrMotion(1.0, 1.0, 0.0, 1.0, 1.999, 3.2590, 1.0316, PI / 2.0, 10.0, 0.001, 8).simulate();
+		assertTrue(error < 1.0e-4);
+	}
+
 	@Test
     public void polar1 () {
 		double error = new KerrMotion(1.0, 1.0, 1.0, 0.9558, 0.035991, 14.119546, 10.0, PI / 2.0, 10.0, 0.001, 8).simulate();

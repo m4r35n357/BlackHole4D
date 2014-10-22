@@ -34,7 +34,7 @@ public final class KerrMotion {
 	public KerrMotion (double mass, double spin, double m, double E, double L, double C, double r, double th, double T, double ts, int order) {
 		M = mass;
 		a = spin;
-		mu2 = m;
+		mu2 = m * m;
 		this.E = E;
 		this.L = L;
 		CC = C;
@@ -78,7 +78,7 @@ public final class KerrMotion {
 		eCum += e_r + e_th;
 	}
 	
-	private void update_T_Phi () {
+	private void update_t_phi () {
 		t -= ts * (ra2 * P1 / delta - a * (a * E * sth2 - L));  // MTW eq.33.32d
 		ph += ts * (a * P1 / delta - a * E + L / sth2);  // MTW eq.33.32c
 	}
@@ -105,7 +105,7 @@ public final class KerrMotion {
 			System.out.printf("{\"mino\":%.9e, \"tau\":%.9e, \"E\":%.1f, \"ER\":%.1f, \"ETh\":%.1f, \"t\":%.9e, \"r\":%.9e, \"th\":%.9e, \"ph\":%.9e, \"R\":%.9e, \"THETA\":%.9e, \"x\":%.9e, \"y\":%.9e, \"z\":%.9e}%n",
 					mino, (r2 + a2 * cth2) * mino, e, eR, eTh, - t, r, th, ph, R, THETA, ra * sth * cos(ph), ra * sth * sin(ph), r * cth);
 			mino += ts;
-			update_T_Phi();
+			update_t_phi();  // Euler
 			symplectic.solve(this);
 		} while (r > horizon && mino <= duration);  // outside horizon and in proper time range
 		return eCum;
