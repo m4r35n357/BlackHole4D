@@ -32,7 +32,7 @@ public class InitialConditions {
 	}
 
 	private double rDot (double r) {
-		return ((r * r + a * a) * E - a * L) * ((r * r + a * a) * E - a * L) - (r * r - 2.0 * M * r + a * a) * (mu * mu * r * r + (L - a * E) + Q);
+		return ((r * r + a * a) * E - a * L) * ((r * r + a * a) * E - a * L) - (r * r - 2.0 * M * r + a * a) * (mu * mu * r * r + (L - a * E) * (L - a * E) + Q);
 	}
 	
 	private double thetaDot (double theta) {
