@@ -20,17 +20,27 @@ import org.apache.commons.math3.linear.RealVector;
  */
 public class InitialConditions {
 	
-	private double M = 1.0, mu = 1.0, E = 1.0, L = 2.0, Q = 0.0, a, rMin, rMax, thetaMin, tolerance = 1.0e-3;
+	private double M = 1.0, mu = 1.0, E = 1.0, L = 2.0, Q = 0.0, a, rMin, rMax, thetaMin, factorL = 1.0, tolerance = 1.0e-3;
 	
 	/**
 	 * 
 	 */
+	public InitialConditions(double rMin, double rMax, double thetaMin, double a, double factorL) {
+		boolean singular = abs(rMax - rMin) > 2.0 * tolerance;
+		this.rMin = singular ? rMin: rMin - tolerance;
+		this.rMax = singular ? rMax: rMax + tolerance;
+		this.thetaMin = thetaMin > 0.01 ? thetaMin:  0.01;
+		this.a = a;
+		this.factorL = factorL;
+	}
+
 	public InitialConditions(double rMin, double rMax, double thetaMin, double a) {
 		boolean singular = abs(rMax - rMin) > 2.0 * tolerance;
 		this.rMin = singular ? rMin: rMin - tolerance;
 		this.rMax = singular ? rMax: rMax + tolerance;
 		this.thetaMin = thetaMin > 0.01 ? thetaMin:  0.01;
 		this.a = a;
+		this.factorL = factorL;
 	}
 
 	public InitialConditions(double rMin, double thetaMin, double a) {
@@ -98,15 +108,15 @@ public class InitialConditions {
 	 */
 	public static void main(String[] args) {
 		if (true) {
-			InitialConditions ic = new InitialConditions(12.0, 12.0, 0.0, 1.0);
+			InitialConditions ic = new InitialConditions(12.0, 12.0, PI / 2.0, 0.0, 0.0);
 			ic.solve();
-			new KerrMotion(1.0, ic.a, 1.0, ic.E, ic.L, ic.Q, sqrt(ic.rMin * ic.rMax), PI / 2.0, 50.0, 0.001, 8).simulate();
+			new KerrMotion(1.0, ic.a, 1.0, ic.E, ic.factorL * ic.L, ic.Q, sqrt(ic.rMin * ic.rMax), PI / 2.0, 50.0, 0.001, 8).simulate();
 			System.out.println("");
 			System.out.println("{ \"M\" : 1.0,");
 			System.out.println("  \"a\" : " + ic.a + ",");
 			System.out.println("  \"mu\" : 1.0,");
 			System.out.println("  \"E\" : " + ic.E + ",");
-			System.out.println("  \"Lz\" : " + ic.L + ",");
+			System.out.println("  \"Lz\" : " + ic.factorL * ic.L + ",");
 			System.out.println("  \"C\" : " + ic.Q + ",");
 			System.out.println("  \"r\" : " + sqrt(ic.rMin * ic.rMax) + ",");
 			System.out.println("  \"theta\" : " + PI / 2.0 + ",");
