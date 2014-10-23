@@ -19,15 +19,15 @@ import org.apache.commons.math3.linear.RealVector;
  */
 public class InitialConditions {
 	
-	private double M = 1.0, mu = 1.0, E = 1.0, L = 2.0, Q = 0.0, a, rMin, rMax, thetaMin;
+	private double M = 1.0, mu = 1.0, E = 1.0, L = 2.0, Q = 0.0, a, rMin, rMax, thetaMin, tolerance = 1.0e-9;
 	
 	/**
 	 * 
 	 */
-	public InitialConditions(double rMin, double rMax, double thetaMax, double a) {
-		this.rMin = rMin;
-		this.rMax = rMax;
-		this.thetaMin = thetaMax;
+	public InitialConditions(double rMin, double rMax, double thetaMin, double a) {
+		this.rMin = rMin - tolerance;
+		this.rMax = rMax + tolerance;
+		this.thetaMin = thetaMin;
 		this.a = a;
 	}
 
@@ -68,7 +68,7 @@ public class InitialConditions {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		InitialConditions ic = new InitialConditions(3.0, 6.0, PI / 4.0, 1.0);
+		InitialConditions ic = new InitialConditions(3.0, 3.0, PI / 2.0, -1.0);
 		ic.solve();
 		new KerrMotion(1.0, ic.a, 1.0, ic.E, ic.L, ic.Q, sqrt(ic.rMin * ic.rMax), PI / 2.0, 10.0, 0.001, 4).simulate();
 	}
