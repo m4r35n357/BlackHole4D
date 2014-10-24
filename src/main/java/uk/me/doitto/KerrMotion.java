@@ -1,6 +1,3 @@
-/**
- * 
- */
 package uk.me.doitto;
 
 import static java.lang.Math.abs;
@@ -135,18 +132,8 @@ public final class KerrMotion {
 			}
 			bufferedReader.close();
 			JSONObject ic = (JSONObject)JSONValue.parse(data);
-			Double M = (Double)ic.get("M");
-			Double a = (Double)ic.get("a");
-			Double mu = (Double)ic.get("mu");
-			Double E = (Double)ic.get("E");
-			Double Lz = (Double)ic.get("Lz");
-			Double C = (Double)ic.get("C");
-			Double r = (Double)ic.get("r");
-			Double theta = (Double)ic.get("theta");
-			Double time = (Double)ic.get("time");
-			Double step = (Double)ic.get("step");
-			int order = ((Long)ic.get("integratorOrder")).intValue();
-			new KerrMotion (M, a, mu, E, Lz, C, r, theta, time, step, order).simulate();
+			new KerrMotion ((Double)ic.get("M"), (Double)ic.get("a"), (Double)ic.get("mu"), (Double)ic.get("E"), (Double)ic.get("Lz"), (Double)ic.get("C"),
+				(Double)ic.get("r"), (Double)ic.get("theta"), (Double)ic.get("time"), (Double)ic.get("step"),((Long)ic.get("integratorOrder")).intValue()).simulate();
 		} else {
 			System.err.println("Missing file name, giving up!");
 		}
