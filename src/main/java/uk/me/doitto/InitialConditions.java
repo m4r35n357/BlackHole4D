@@ -20,7 +20,7 @@ import org.apache.commons.math3.linear.RealVector;
  */
 public class InitialConditions {
 	
-	private double M = 1.0, mu = 1.0, E = 1.0, L = 2.0, Q = 0.0, a, rMin, rMax, thetaMin, factorL = 1.0, tolerance = 1.0e-3;
+	private double M = 1.0, mu = 1.0, E = 1.0, L = 2.0, Q = 0.0, a, rMin, rMax, thetaMin, factorL = 1.0, tolerance = 1.0e-6;
 	
 	public InitialConditions(double rMin, double rMax, double thetaMin, double a, double factorL) {
 		boolean singular = abs(rMax - rMin) > 2.0 * tolerance;
@@ -44,13 +44,14 @@ public class InitialConditions {
 	}
 	
 	private Array2DRowRealMatrix getJacobian () {
+		double pMin = E * (rMin * rMin + a * a) - a * L;
+		double pMax = E * (rMax * rMax + a * a) - a * L;
+		double deltaMin = rMin * rMin - 2.0 * M * rMin + a * a;
+		double deltaMax = rMax * rMax - 2.0 * M * rMax + a * a;
+		double l_ae = (L - a * E);
 		return new Array2DRowRealMatrix(new double[][] {
-			{ 2.0 * (rMin * rMin + a * a) * (E * (rMin * rMin + a * a) - a * L) + 2.0 * a * (L - a * E) * (rMin * rMin - 2.0 * M * rMin * rMin + a * a),
-				-2.0 * a * (E * (rMin * rMin + a * a) - a * L) - 2.0 * (L - a * E) * (rMin * rMin - 2.0 * M * rMin + a * a),
-				- rMin * rMin + 2.0 * M * rMin - a * a },
-			{ 2.0 * (rMax * rMax + a * a) * (E * (rMax * rMax + a * a) - a * L) + 2.0 * a * (L - a * E) * (rMax * rMax - 2.0 * M * rMax * rMax + a * a),
-				-2.0 * a * (E * (rMax * rMax + a * a) - a * L) - 2.0 * (L - a * E) * (rMax * rMax - 2.0 * M * rMax + a * a),
-				- rMax * rMax + 2.0 * M * rMax - a * a }, 
+			{ 2.0 * (rMin * rMin + a * a) * pMin + 2.0 * a * l_ae * deltaMin, -2.0 * a * pMin - 2.0 * l_ae * deltaMin, - deltaMin },
+			{ 2.0 * (rMax * rMax + a * a) * pMax + 2.0 * a * l_ae * deltaMax, -2.0 * a * pMax - 2.0 * l_ae * deltaMax, - deltaMax }, 
 			{ 2.0 * cos(thetaMin) * cos(thetaMin) * a * a * E, - 2.0 * cos(thetaMin) * cos(thetaMin) * L / (sin(thetaMin) * sin(thetaMin)), 1.0 } }, false);
 	}
 	
@@ -61,14 +62,13 @@ public class InitialConditions {
 			L -= correction.getEntry(1);
 			Q -= correction.getEntry(2);
 		}
-		System.out.println("E: " + E + ", L: " + L + ", Q: " + Q + ", Error = " + qDot().dotProduct(qDot()));
 	}
 	
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		InitialConditions ic = new InitialConditions(9.0, 12.0, PI / 4.0, -1.0, 0.9);
+		InitialConditions ic = new InitialConditions(12.0, 12.0, PI / 4.0, 0.0, 1.0);
 		ic.solve();
 		new KerrMotion(1.0, ic.a, 1.0, ic.E, ic.factorL * ic.L, ic.Q, sqrt(ic.rMin * ic.rMax), PI / 2.0, 50.0, 0.001, 8).simulate();
 		System.out.println("");
