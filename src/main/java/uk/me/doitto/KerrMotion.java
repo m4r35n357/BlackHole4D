@@ -70,7 +70,7 @@ public final class KerrMotion {
 		P1 = ra2 * E - a * L;  // MTW eq.33.33b
 		P2 = mu2 * r2 + lmae2 + CC;
 		R = P1 * P1 - delta * P2;
-		TH = a2 * (mu2 - E * E) + L * L /sth2;
+		TH = a2 * (mu2 - E * E) + L * L / sth2;
 		THETA = CC - cth2 * TH;
 	}
 	

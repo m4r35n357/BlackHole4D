@@ -65,9 +65,9 @@ public class InitialConditions {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		InitialConditions ic = new InitialConditions(12.0, 12.0, 0.0, 1.0, 1.0);
+		InitialConditions ic = new InitialConditions(12.0, 12.0, PI / 4.0, -1.0, 1.0);
 		ic.solve();
-		new KerrMotion(1.0, ic.a, 1.0, ic.E, ic.factorL * ic.L, ic.Q, sqrt(ic.r0 * ic.r1), PI / 2.0, 50.0, 0.001, 8).simulate();
+		new KerrMotion(1.0, ic.a, 1.0, ic.E, ic.factorL * ic.L, ic.Q, sqrt(ic.r0 * ic.r1), PI / 2.0, 20.0, 0.001, 8).simulate();
 		System.out.println("");
 		System.out.println("{ \"M\" : 1.0,");
 		System.out.println("  \"a\" : " + ic.a + ",");
@@ -76,7 +76,7 @@ public class InitialConditions {
 		System.out.println("  \"Lz\" : " + ic.factorL * ic.L + ",");
 		System.out.println("  \"C\" : " + ic.Q + ",");
 		System.out.println("  \"r\" : " + sqrt(ic.r0 * ic.r1) + ",");
-		System.out.println("  \"theta\" : " + PI / 2.0 + ",");
+		System.out.println("  \"theta\" : " + ic.theta0 + ",");
 		System.out.println("  \"time\" : 20.0,");
 		System.out.println("  \"step\" : 0.001,");
 		System.out.println("  \"integratorOrder\" : 8");
