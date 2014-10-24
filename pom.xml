@@ -172,7 +172,7 @@
 				<configuration>
 					<archive>
 						<manifest>
-							<mainClass>uk.me.doitto.KerrSpaceTimeClient</mainClass>
+							<mainClass>uk.me.doitto.KerrMotion</mainClass>
 						</manifest>
 					</archive>
 					<descriptorRefs>
