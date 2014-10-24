@@ -22,9 +22,6 @@ public class InitialConditions {
 	
 	private double M = 1.0, mu = 1.0, E = 1.0, L = 2.0, Q = 0.0, a, rMin, rMax, thetaMin, factorL = 1.0, tolerance = 1.0e-3;
 	
-	/**
-	 * 
-	 */
 	public InitialConditions(double rMin, double rMax, double thetaMin, double a, double factorL) {
 		boolean singular = abs(rMax - rMin) > 2.0 * tolerance;
 		this.rMin = singular ? rMin: rMin - tolerance;
@@ -32,21 +29,6 @@ public class InitialConditions {
 		this.thetaMin = thetaMin > 0.01 ? thetaMin:  0.01;
 		this.a = a;
 		this.factorL = factorL;
-	}
-
-	public InitialConditions(double rMin, double rMax, double thetaMin, double a) {
-		boolean singular = abs(rMax - rMin) > 2.0 * tolerance;
-		this.rMin = singular ? rMin: rMin - tolerance;
-		this.rMax = singular ? rMax: rMax + tolerance;
-		this.thetaMin = thetaMin > 0.01 ? thetaMin:  0.01;
-		this.a = a;
-		this.factorL = factorL;
-	}
-
-	public InitialConditions(double rMin, double thetaMin, double a) {
-		this.rMin = rMin;
-		this.thetaMin = thetaMin;
-		this.a = a;
 	}
 
 	private double rDot (double r) {
@@ -61,10 +43,6 @@ public class InitialConditions {
 		return new ArrayRealVector(new double[] { rDot(rMin), rDot(rMax), thetaDot(thetaMin) }, false);
 	}
 	
-	private RealVector qDotPlummet () {
-		return new ArrayRealVector(new double[] { rDot(rMin), thetaDot(thetaMin) }, false);
-	}
-	
 	private Array2DRowRealMatrix getJacobian () {
 		return new Array2DRowRealMatrix(new double[][] {
 			{ 2.0 * (rMin * rMin + a * a) * (E * (rMin * rMin + a * a) - a * L) + 2.0 * a * (L - a * E) * (rMin * rMin - 2.0 * M * rMin * rMin + a * a),
@@ -74,13 +52,6 @@ public class InitialConditions {
 				-2.0 * a * (E * (rMax * rMax + a * a) - a * L) - 2.0 * (L - a * E) * (rMax * rMax - 2.0 * M * rMax + a * a),
 				- rMax * rMax + 2.0 * M * rMax - a * a }, 
 			{ 2.0 * cos(thetaMin) * cos(thetaMin) * a * a * E, - 2.0 * cos(thetaMin) * cos(thetaMin) * L / (sin(thetaMin) * sin(thetaMin)), 1.0 } }, false);
-	}
-	
-	private Array2DRowRealMatrix getJacobianPlummet () {
-		return new Array2DRowRealMatrix(new double[][] {
-			{ 2.0 * (a * a + rMin * rMin) * (a * a + rMin * rMin) * E - 2.0 * a * a * E * (rMin * rMin - 2.0 * M * rMin * rMin + a * a),
-				rMin * rMin - 2.0 * M * rMin * rMin + a * a },
-			{ 2.0 * cos(thetaMin) * cos(thetaMin) * a * a * E, 1.0 } }, false);
 	}
 	
 	private void solve () {
@@ -93,55 +64,25 @@ public class InitialConditions {
 		System.out.println("E: " + E + ", L: " + L + ", Q: " + Q + ", Error = " + qDot().dotProduct(qDot()));
 	}
 	
-	private void solvePlummet () {
-		while (qDotPlummet().dotProduct(qDotPlummet()) > 1.0e-18) {
-			RealVector correction = new LUDecomposition(getJacobianPlummet()).getSolver().solve(qDotPlummet());
-			E -= correction.getEntry(0);
-			Q -= correction.getEntry(1);
-		}
-		L = 0.0;
-		System.out.println("E: " + E + ", L: " + L + ", Q: " + Q + ", Error = " + qDot().dotProduct(qDot()));
-	}
-	
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		if (true) {
-			InitialConditions ic = new InitialConditions(12.0, 12.0, PI / 2.0, 0.0, 0.0);
-			ic.solve();
-			new KerrMotion(1.0, ic.a, 1.0, ic.E, ic.factorL * ic.L, ic.Q, sqrt(ic.rMin * ic.rMax), PI / 2.0, 50.0, 0.001, 8).simulate();
-			System.out.println("");
-			System.out.println("{ \"M\" : 1.0,");
-			System.out.println("  \"a\" : " + ic.a + ",");
-			System.out.println("  \"mu\" : 1.0,");
-			System.out.println("  \"E\" : " + ic.E + ",");
-			System.out.println("  \"Lz\" : " + ic.factorL * ic.L + ",");
-			System.out.println("  \"C\" : " + ic.Q + ",");
-			System.out.println("  \"r\" : " + sqrt(ic.rMin * ic.rMax) + ",");
-			System.out.println("  \"theta\" : " + PI / 2.0 + ",");
-			System.out.println("  \"time\" : 20.0,");
-			System.out.println("  \"step\" : 0.001,");
-			System.out.println("  \"integratorOrder\" : 8");
-			System.out.println("}");
-		} else {
-			InitialConditions ic = new InitialConditions(12.0, PI / 4.0, -1.0);
-			ic.solvePlummet();;
-			new KerrMotion(1.0, ic.a, 1.0, ic.E, ic.L, ic.Q, ic.rMin, ic.thetaMin, 50.0, 0.001, 8).simulate();
-			System.out.println("");
-			System.out.println("{ \"M\" : 1.0,");
-			System.out.println("  \"a\" : " + ic.a + ",");
-			System.out.println("  \"mu\" : 1.0,");
-			System.out.println("  \"E\" : " + ic.E + ",");
-			System.out.println("  \"Lz\" : " + ic.L + ",");
-			System.out.println("  \"C\" : " + ic.Q + ",");
-			System.out.println("  \"r\" : " + ic.rMin + ",");
-			System.out.println("  \"theta\" : " + ic.thetaMin + ",");
-			System.out.println("  \"time\" : 20.0,");
-			System.out.println("  \"step\" : 0.001,");
-			System.out.println("  \"integratorOrder\" : 8");
-			System.out.println("}");
-		}
+		InitialConditions ic = new InitialConditions(9.0, 12.0, PI / 4.0, -1.0, 0.9);
+		ic.solve();
+		new KerrMotion(1.0, ic.a, 1.0, ic.E, ic.factorL * ic.L, ic.Q, sqrt(ic.rMin * ic.rMax), PI / 2.0, 50.0, 0.001, 8).simulate();
+		System.out.println("");
+		System.out.println("{ \"M\" : 1.0,");
+		System.out.println("  \"a\" : " + ic.a + ",");
+		System.out.println("  \"mu\" : 1.0,");
+		System.out.println("  \"E\" : " + ic.E + ",");
+		System.out.println("  \"Lz\" : " + ic.factorL * ic.L + ",");
+		System.out.println("  \"C\" : " + ic.Q + ",");
+		System.out.println("  \"r\" : " + sqrt(ic.rMin * ic.rMax) + ",");
+		System.out.println("  \"theta\" : " + PI / 2.0 + ",");
+		System.out.println("  \"time\" : 20.0,");
+		System.out.println("  \"step\" : 0.001,");
+		System.out.println("  \"integratorOrder\" : 8");
+		System.out.println("}");
 	}
-
 }
