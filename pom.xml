@@ -15,7 +15,7 @@
 		<organization>The Pond</organization>
 		<fullName>Ian Smith</fullName>
 		<email>m4r35n357@gmail.com</email>
-		<repoManager>http://sumo:8080/nexus/content/repositories</repoManager>
+		<repoManager>http://bonsai:8080/nexus/content/repositories</repoManager>
 		<javaVersion>1.6</javaVersion>
 		<surefireVersion>2.7.1</surefireVersion>
 	</properties>
@@ -57,7 +57,7 @@
 
 	<ciManagement>
 		<system>Jenkins</system>
-		<url>http://sumo:8080/jenkins/job/${project.name}/</url>
+		<url>http://bonsai:8080/jenkins/job/${project.name}/</url>
 	</ciManagement>
 
 	<scm>
@@ -99,21 +99,7 @@
 			</activation>
 			
 			<build>
-				<plugins>
-<!-- 					<plugin> -->
-<!-- 						<groupId>org.pitest</groupId> -->
-<!-- 						<artifactId>pitest-maven</artifactId> -->
-<!-- 						<version>LATEST</version> -->
-<!-- 						<configuration> -->
-<!-- 							<targetClasses> -->
-<!-- 								<param>uk.me.doitto*</param> -->
-<!-- 							</targetClasses> -->
-<!-- 							<targetTests> -->
-<!-- 								<param>uk.me.doitto*</param> -->
-<!-- 							</targetTests> -->
-<!-- 						</configuration> -->
-<!-- 					</plugin> -->
-					
+				<plugins>			
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-source-plugin</artifactId>
