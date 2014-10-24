@@ -3,6 +3,11 @@
  */
 package uk.me.doitto;
 
+import static java.lang.Math.abs;
+import static java.lang.Math.cos;
+import static java.lang.Math.log10;
+import static java.lang.Math.sin;
+import static java.lang.Math.sqrt;
 import static uk.me.doitto.Integrator.STORMER_VERLET_10;
 import static uk.me.doitto.Integrator.STORMER_VERLET_2;
 import static uk.me.doitto.Integrator.STORMER_VERLET_4;
@@ -15,31 +20,28 @@ import static uk.me.doitto.Integrator.STORMER_VERLET_8;
  */
 public final class KerrMotion {
 	
-	private static final double TWOPI = 2.0 * Math.PI;
+	private final double M, a, horizon, mu2, E, L, CC, duration, ts, a2, lmae2; // constants for this spacetime
 	
-	private final double M, a, horizon, mu2, E, Lz, CC, time, step, a2, lmae2; // constants for this spacetime
+	private double r2, ra2, sth, cth, sth2, cth2, delta, R, P1, P2, THETA, TH;  // intermediate variables
 	
-	private double r2, ra2, ra, sth, cth, sth2, cth2, sth3, cth3, csth, sigma, sigma2, sigma3, delta, P, R, THETA, R_THETA, f2, P2;  // intermediate variables
-	
-	private double tau, t, r, theta, phi, rDot, thetaDot, x, y, z; // coordinates etc.
+	private double mino, t, r, th, ph, rDot, thDot, eCum, e, eR, eTh; // coordinates etc.
 	
 	private Integrator symplectic;
 	
 	/**
 	 * Constructor, constants and initial conditions
 	 */
-	public KerrMotion (double mass, double spin, double m, double E, double L, double C, double r, double th, double ph, double T, double ts, int order) {
+	public KerrMotion (double mass, double spin, double m, double E, double L, double C, double r, double th, double T, double ts, int order) {
 		M = mass;
 		a = spin;
-		mu2 = m;
+		mu2 = m * m;
 		this.E = E;
-		Lz = L;
+		this.L = L;
 		CC = C;
 		this.r = r;
-		theta = th;
-		phi = ph;
-		time = T;
-		step = - ts;
+		this.th = th;
+		duration = T;
+		this.ts = ts;
 		switch (order) {
 			case 2: symplectic = STORMER_VERLET_2; break;
 			case 4: symplectic = STORMER_VERLET_4; break;
@@ -48,75 +50,64 @@ public final class KerrMotion {
 			case 10: symplectic = STORMER_VERLET_10; break;
 		}
 		a2 = a * a;
-		horizon = M * (1.0 + Math.sqrt(1.0 - a2));
+		horizon = M * (1.0 + sqrt(1.0 - a2));
 		lmae2 = (L - a * E) * (L - a * E);
 	}
 
-	private void updateIntermediates (double r, double theta) {
+	private void updateIntermediates () {
 		r2 = r * r;
 		ra2 = r2 + a2;
-		ra = Math.sqrt(ra2);
-		sth = Math.sin(theta);
-		cth = Math.cos(theta);
+		sth = sin(th);
+		cth = cos(th);
 		sth2 = sth * sth;
-		assert sth2 > 0.0 : "ZERO DIVISOR: sin(theta), theta = " + theta;
-		sth3 = sth2 * sth;
 		cth2 = cth * cth;
-		cth3 = cth2 * cth;
-		csth = cth * sth;
-		sigma = r2 + a2 * cth2;
-		assert sigma > 0.0 : "ZERO DIVISOR: sigma, r = " + r + ", theta = " + theta;
-		sigma2 = sigma * sigma;
-		sigma3 = sigma2 * sigma;
 		delta = ra2 - 2.0 * M * r;
-		assert delta > 0.0 : "ZERO DIVISOR: delta, r = " + r;
-		P = ra2 * E - a * Lz;  // MTW eq.33.33b
+		P1 = ra2 * E - a * L;  // MTW eq.33.33b
 		P2 = mu2 * r2 + lmae2 + CC;
-		R = P * P - delta * P2;
-		f2 = a2 * (mu2 - E * E) + Lz * Lz /sth2;
-		THETA = CC - cth2 * f2;
-		R_THETA = R + THETA;
+		R = P1 * P1 - delta * P2;
+		TH = a2 * (mu2 - E * E) + L * L /sth2;
+		THETA = CC - cth2 * TH;
 	}
 	
-	private double uT () {  // MTW eq.33.32d
-		return (ra2 * P / delta - a * (a * E * sth2 - Lz)) / sigma;
+	private void errors () {
+		double e_r = abs(rDot * rDot - R) / 2.0;
+		double e_th = abs(thDot * thDot - THETA) / 2.0;
+		eR = 10.0 * log10(e_r + 1.0e-18);
+		eTh = 10.0 * log10(e_th + 1.0e-18);
+		e =  10.0 * log10(e_r + e_th + 1.0e-18);
+		eCum += e_r + e_th;
 	}
 	
-	private double uPh () {  // MTW eq.33.32c
-		return (a * P / delta - (a * E - Lz / sth2)) / sigma;
-	}
-	
-	private double pH () {
-		return 10.0 * Math.log10(Math.abs(0.5 * (rDot * rDot + thetaDot * thetaDot - R_THETA / sigma2)));
+	private void update_t_phi () {
+		t -= ts * (ra2 * P1 / delta + a * L - a * a * E * sth2);  // MTW eq.33.32d
+		ph += ts * (a * P1 / delta - a * E + L / sth2);  // MTW eq.33.32c
 	}
 	
 	void updateQ (double c) {
-		double cStep = c * step;
-		t += cStep * uT();
-		r += cStep * rDot;
-		theta = (theta + cStep * thetaDot) % TWOPI;
-		phi = (phi - cStep * uPh()) % TWOPI;
-		updateIntermediates(r, theta);
+		r += c * ts * rDot;
+		th += c * ts * thDot;
+		updateIntermediates();
 	}
 	
 	void updateP (double c) {
-		double cStep = c * step;  // NB factor of 0.5 cancelled out by a factor of 2.0 below
-		rDot += cStep * ((2.0 * r * E * P - mu2 * r * delta - P2 * (r - M)) / sigma2 - 2.0 * r * R_THETA / sigma3);
-		thetaDot += cStep * ((csth * f2 + Lz * Lz * cth3 / sth3) / sigma2 + 2.0 * csth * a2 * R_THETA / sigma3);
+		rDot += c * ts * (2.0 * r * E * P1 - P2 * (r - M) - mu2 * r * delta);  // see Maxima file bh.wxm, Mino Time
+		thDot += c * ts * (cth * sth * TH + L * L * cth2 * cth / (sth2 * sth));  // see Maxima file bh.wxm, Mino Time
 	}
 	
-	public void simulate () {
-		updateIntermediates(r, theta);
-		rDot = (R / sigma2 >= 0.0) ? Math.sqrt(R / sigma2) : - Math.sqrt(- R / sigma2);  // MTW eq.33.32b and 33.33c
-		thetaDot = (THETA / sigma2 >= 0.0) ? Math.sqrt(THETA / sigma2) : - Math.sqrt(- THETA / sigma2);  // MTW eq.33.32a and 33.33a
+	public double simulate () {
+		updateIntermediates();
+		rDot = -sqrt(R >= 0.0 ? R: 0.0);  // MTW eq.33.32b and 33.33c
+		thDot = -sqrt(THETA >= 0.0 ? THETA: 0.0);  // MTW eq.33.32a and 33.33a
 		symplectic.init();
 		do {
-			x = ra * sth * Math.cos(phi);
-			y = ra * sth * Math.sin(phi);
-			z = r * cth;
-			System.out.printf("{\"tau\":%.9e, \"H\":%.1f, \"t\":%.9e, \"r\":%.9e, \"th\":%.9e, \"ph\":%.9e, \"uT\":%.9e, \"uR\":%.9e, \"uTh\":%.9e, \"uPh\":%.9e, \"x\":%.9e, \"y\":%.9e, \"z\":%.9e}%n", - tau, pH(), - t, r, theta, phi, uT(), rDot, thetaDot, uPh(), x, y, z);
-			tau += step;
+			errors();
+			double ra = sqrt(ra2);
+			System.out.printf("{\"mino\":%.9e, \"tau\":%.9e, \"E\":%.1f, \"ER\":%.1f, \"ETh\":%.1f, \"t\":%.9e, \"r\":%.9e, \"th\":%.9e, \"ph\":%.9e, \"R\":%.9e, \"THETA\":%.9e, \"x\":%.9e, \"y\":%.9e, \"z\":%.9e}%n",
+					mino, (r2 + a2 * cth2) * mino, e, eR, eTh, - t, r, th, ph, R, THETA, ra * sth * cos(ph), ra * sth * sin(ph), r * cth);
+			mino += ts;
+			update_t_phi();  // Euler
 			symplectic.solve(this);
-		} while (r > horizon && - tau <= time);  // outside horizon and in proper time range
+		} while (r > horizon && mino <= duration);  // outside horizon and in proper time range
+		return eCum;
 	}
 }
