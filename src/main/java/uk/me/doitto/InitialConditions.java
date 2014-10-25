@@ -96,7 +96,7 @@ public class InitialConditions {
 	public static void main(String[] args) {
 		InitialConditions ic = new InitialConditions(Trajectory.PARTICLE, 12.0, 12.0, 0.0, Spin.PROGRADE, 1.0, Integrator.STORMER_VERLET_10);
 		ic.solve();
-		new KerrMotion(ic.M, ic.a, ic.mu, ic.E, ic.L * ic.factorL, ic.Q, sqrt(ic.r0 * ic.r1), ic.th0, ic.time, ic.step, ic.order).simulate();
+		new KerrMotion(ic.M, ic.a, ic.mu, ic.E, ic.L * ic.factorL, ic.Q, ic.r1, ic.th0, ic.time, ic.step, ic.order).simulate();
 		System.out.println("");
 		System.out.println("{ \"M\" : " + ic.M + ",");
 		System.out.println("  \"a\" : " + ic.a + ",");
@@ -104,7 +104,7 @@ public class InitialConditions {
 		System.out.println("  \"E\" : " + ic.E + ",");
 		System.out.println("  \"Lz\" : " + ic.L * ic.factorL + ",");
 		System.out.println("  \"C\" : " + ic.Q + ",");
-		System.out.println("  \"r\" : " + sqrt(ic.r0 * ic.r1) + ",");
+		System.out.println("  \"r\" : " + ic.r1 + ",");
 		System.out.println("  \"theta\" : " + ic.th0 + ",");
 		System.out.println("  \"time\" : " + ic.time + ",");
 		System.out.println("  \"step\" : " + ic.step + ",");
