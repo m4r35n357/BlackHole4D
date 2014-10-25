@@ -28,7 +28,7 @@ public class InitialConditions {
 		RETROGRADE, ZERO, PROGRADE;
 	}
 	
-	private final double M = 1.0, mu, a, r0, r1, th0, factorL, tolerance = 1.0e-6;
+	private final double M = 1.0, mu, a, r0, r1, th0, factorL, time = 20.0, step = 0.001, tolerance = 1.0e-6;
 	
 	private double E = 1.0, L = 2.0, Q = 0.0;
 	
@@ -41,19 +41,19 @@ public class InitialConditions {
 		this.r1 = singular ? rMax: rMax + tolerance;
 		this.th0 = thetaMin > 0.01 ? thetaMin:  0.01;
 		switch (a) {
-		case RETROGRADE: this.a = -1.0; break;
-		case ZERO: this.a = 0.0; break;
-		case PROGRADE: this.a = 1.0; break;
+			case RETROGRADE: this.a = -1.0; break;
+			case ZERO: this.a = 0.0; break;
+			case PROGRADE: this.a = 1.0; break;
 		default: this.a = 0.0; break;
 		}
 		this.factorL = factorL;
 		switch (i) {
-		case STORMER_VERLET_2: this.order = 2; break;
-		case STORMER_VERLET_4: this.order = 4; break;
-		case STORMER_VERLET_6: this.order = 6; break;
-		case STORMER_VERLET_8: this.order = 8; break;
-		case STORMER_VERLET_10: this.order = 10; break;
-		default: this.order = 2; break;
+			case STORMER_VERLET_2: this.order = 2; break;
+			case STORMER_VERLET_4: this.order = 4; break;
+			case STORMER_VERLET_6: this.order = 6; break;
+			case STORMER_VERLET_8: this.order = 8; break;
+			case STORMER_VERLET_10: this.order = 10; break;
+			default: this.order = 2; break;
 		}
 	}
 
@@ -125,21 +125,21 @@ public class InitialConditions {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		InitialConditions ic = new InitialConditions(Trajectory.PARTICLE, 12.0, 12.0, PI / 2.0, Spin.RETROGRADE, 1.0, Integrator.STORMER_VERLET_8);
+		InitialConditions ic = new InitialConditions(Trajectory.PARTICLE, 12.0, 12.0, 0.0, Spin.PROGRADE, 1.0, Integrator.STORMER_VERLET_10);
 		ic.solve();
 //		ic.generate();
-		new KerrMotion(1.0, ic.a, 1.0, ic.E, ic.factorL * ic.L, ic.Q, sqrt(ic.r0 * ic.r1), PI / 2.0, 20.0, 0.001, ic.order).simulate();
+		new KerrMotion(ic.M, ic.a, ic.mu, ic.E, ic.L * ic.factorL, ic.Q, sqrt(ic.r0 * ic.r1), ic.th0, ic.time, ic.step, ic.order).simulate();
 		System.out.println("");
-		System.out.println("{ \"M\" : 1.0,");
+		System.out.println("{ \"M\" : " + ic.M + ",");
 		System.out.println("  \"a\" : " + ic.a + ",");
 		System.out.println("  \"mu\" : " + ic.mu + ",");
 		System.out.println("  \"E\" : " + ic.E + ",");
-		System.out.println("  \"Lz\" : " + ic.factorL * ic.L + ",");
+		System.out.println("  \"Lz\" : " + ic.L * ic.factorL + ",");
 		System.out.println("  \"C\" : " + ic.Q + ",");
 		System.out.println("  \"r\" : " + sqrt(ic.r0 * ic.r1) + ",");
 		System.out.println("  \"theta\" : " + ic.th0 + ",");
-		System.out.println("  \"time\" : 20.0,");
-		System.out.println("  \"step\" : 0.001,");
+		System.out.println("  \"time\" : " + ic.time + ",");
+		System.out.println("  \"step\" : " + ic.step + ",");
 		System.out.println("  \"integratorOrder\" : " + ic.order);
 		System.out.println("}");
 	}
