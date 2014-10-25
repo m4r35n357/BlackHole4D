@@ -1,3 +1,6 @@
+/*
+ * Copyright Ian Smith 2014
+ */
 package uk.me.doitto;
 
 import static java.lang.Math.abs;
@@ -21,7 +24,7 @@ import org.json.simple.JSONValue;
 
 /**
  * @author ian
- * Particle trajectories in the Kerr spacetime and Boyer-Lindquist coordinates
+ * Particle and photon trajectories in the Kerr spacetime and in Boyer-Lindquist coordinates
  */
 public final class KerrMotion {
 	

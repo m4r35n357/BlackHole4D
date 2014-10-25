@@ -1,3 +1,6 @@
+/*
+ * Copyright Ian Smith 2014
+ */
 package uk.me.doitto;
 
 import static java.lang.Math.pow;
