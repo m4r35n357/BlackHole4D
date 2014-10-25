@@ -90,44 +90,12 @@ public class InitialConditions {
 		}
 	}
 	
-	private void generate () {
-		double p0 = E * (r0 * r0 + a * a) - a * L;
-		double p1 = E * (r1 * r1 + a * a) - a * L;
-		double delta0 = r0 * r0 - 2.0 * M * r0 + a * a;
-		double delta1 = r1 * r1 - 2.0 * M * r1 + a * a;
-		double l_ae = (L - a * E);
-		double A = 2.0 * (r0 * r0 + a * a) * p0 + 2.0 * a * l_ae * delta0;
-		double B = - 2.0 * a * p0 - 2.0 * l_ae * delta0;
-		double C = - delta0;
-		double D = 2.0 * (r1 * r1 + a * a) * p1 + 2.0 * a * l_ae * delta1;
-		double e = - 2.0 * a * p1 - 2.0 * l_ae * delta1;
-		double F = - delta1;
-		double G = 2.0 * cos(th0) * cos(th0) * a * a * e;
-		double H = - 2.0 * cos(th0) * cos(th0) * L / (sin(th0) * sin(th0));
-		double[][] inverseJacobian = new double[][] {
-				{ -(H*(-((D-F*G)*((F*(B-C*H))/(e-F*H)-C))/(-((D-F*G)*(B-C*H))/(e-F*H)-C*G+A)-F))/(e-F*H)-(G*((F*(B-C*H))/(e-F*H)-C))/(-((D-F*G)*(B-C*H))/(e-F*H)-C*G+A)+1,
-					(G*(B-C*H))/((e-F*H)*(-((D-F*G)*(B-C*H))/(e-F*H)-C*G+A))-(H*(((D-F*G)*(B-C*H))/((e-F*H)*(-((D-F*G)*(B-C*H))/(e-F*H)-C*G+A))+1))/(e-F*H),
-					((D-F*G)*H)/((e-F*H)*(-((D-F*G)*(B-C*H))/(e-F*H)-C*G+A))-G/(-((D-F*G)*(B-C*H))/(e-F*H)-C*G+A) },
-				{ (-((D-F*G)*((F*(B-C*H))/(e-F*H)-C))/(-((D-F*G)*(B-C*H))/(e-F*H)-C*G+A)-F)/(e-F*H),
-					(((D-F*G)*(B-C*H))/((e-F*H)*(-((D-F*G)*(B-C*H))/(e-F*H)-C*G+A))+1)/(e-F*H),
-					-(D-F*G)/((e-F*H)*(-((D-F*G)*(B-C*H))/(e-F*H)-C*G+A)) }, 
-				{ ((F*(B-C*H))/(e-F*H)-C)/(-((D-F*G)*(B-C*H))/(e-F*H)-C*G+A),
-					-(B-C*H)/((e-F*H)*(-((D-F*G)*(B-C*H))/(e-F*H)-C*G+A)),
-					1/(-((D-F*G)*(B-C*H))/(e-F*H)-C*G+A) } };
-		double[] qDot = new double[] { rDot(th0), rDot(r1), thDot(r0) };
-		while (qDot[0]*qDot[0] + qDot[1]*qDot[1] + qDot[2]*qDot[2] > 1.0e-6) {
-			Q -= inverseJacobian[0][0] * qDot[0] + inverseJacobian[0][1] * qDot[1] + inverseJacobian[0][2] * qDot[2];
-			L -= inverseJacobian[1][0] * qDot[0] + inverseJacobian[1][1] * qDot[1] + inverseJacobian[1][2] * qDot[2];
-			E -= inverseJacobian[2][0] * qDot[0] + inverseJacobian[2][1] * qDot[1] + inverseJacobian[2][2] * qDot[2];
-		}
-	}
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
 		InitialConditions ic = new InitialConditions(Trajectory.PARTICLE, 12.0, 12.0, 0.0, Spin.PROGRADE, 1.0, Integrator.STORMER_VERLET_10);
 		ic.solve();
-//		ic.generate();
 		new KerrMotion(ic.M, ic.a, ic.mu, ic.E, ic.L * ic.factorL, ic.Q, sqrt(ic.r0 * ic.r1), ic.th0, ic.time, ic.step, ic.order).simulate();
 		System.out.println("");
 		System.out.println("{ \"M\" : " + ic.M + ",");
