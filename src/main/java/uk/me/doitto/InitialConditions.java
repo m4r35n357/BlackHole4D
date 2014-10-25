@@ -20,15 +20,41 @@ import org.apache.commons.math3.linear.RealVector;
  */
 public class InitialConditions {
 	
-	private double M = 1.0, mu = 1.0, E = 1.0, L = 2.0, Q = 0.0, a, r0, r1, th0, factorL = 1.0, tolerance = 1.0e-6;
+	private enum Trajectory {
+		PARTICLE, LIGHT;
+	}
 	
-	public InitialConditions(double rMin, double rMax, double thetaMin, double a, double factorL) {
+	private enum Spin {
+		RETROGRADE, ZERO, PROGRADE;
+	}
+	
+	private final double M = 1.0, mu, a, r0, r1, th0, factorL, tolerance = 1.0e-6;
+	
+	private double E = 1.0, L = 2.0, Q = 0.0;
+	
+	private int order;
+	
+	public InitialConditions(Trajectory t, double rMin, double rMax, double thetaMin, Spin a, double factorL, Integrator i) {
+		this.mu = (t == Trajectory.PARTICLE) ? 1.0 : 0.0;
 		boolean singular = abs(rMax - rMin) > 2.0 * tolerance;
 		this.r0 = singular ? rMin: rMin - tolerance;
 		this.r1 = singular ? rMax: rMax + tolerance;
 		this.th0 = thetaMin > 0.01 ? thetaMin:  0.01;
-		this.a = a;
+		switch (a) {
+		case RETROGRADE: this.a = -1.0; break;
+		case ZERO: this.a = 0.0; break;
+		case PROGRADE: this.a = 1.0; break;
+		default: this.a = 0.0; break;
+		}
 		this.factorL = factorL;
+		switch (i) {
+		case STORMER_VERLET_2: this.order = 2; break;
+		case STORMER_VERLET_4: this.order = 4; break;
+		case STORMER_VERLET_6: this.order = 6; break;
+		case STORMER_VERLET_8: this.order = 8; break;
+		case STORMER_VERLET_10: this.order = 10; break;
+		default: this.order = 2; break;
+		}
 	}
 
 	private double rDot (double r) {
@@ -99,14 +125,14 @@ public class InitialConditions {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		InitialConditions ic = new InitialConditions(6.0, 12.0, PI / 4.0, -1.0, 1.0);
+		InitialConditions ic = new InitialConditions(Trajectory.PARTICLE, 12.0, 12.0, PI / 2.0, Spin.RETROGRADE, 1.0, Integrator.STORMER_VERLET_8);
 		ic.solve();
 //		ic.generate();
-		new KerrMotion(1.0, ic.a, 1.0, ic.E, ic.factorL * ic.L, ic.Q, sqrt(ic.r0 * ic.r1), PI / 2.0, 20.0, 0.001, 8).simulate();
+		new KerrMotion(1.0, ic.a, 1.0, ic.E, ic.factorL * ic.L, ic.Q, sqrt(ic.r0 * ic.r1), PI / 2.0, 20.0, 0.001, ic.order).simulate();
 		System.out.println("");
 		System.out.println("{ \"M\" : 1.0,");
 		System.out.println("  \"a\" : " + ic.a + ",");
-		System.out.println("  \"mu\" : 1.0,");
+		System.out.println("  \"mu\" : " + ic.mu + ",");
 		System.out.println("  \"E\" : " + ic.E + ",");
 		System.out.println("  \"Lz\" : " + ic.factorL * ic.L + ",");
 		System.out.println("  \"C\" : " + ic.Q + ",");
@@ -114,7 +140,7 @@ public class InitialConditions {
 		System.out.println("  \"theta\" : " + ic.th0 + ",");
 		System.out.println("  \"time\" : 20.0,");
 		System.out.println("  \"step\" : 0.001,");
-		System.out.println("  \"integratorOrder\" : 8");
+		System.out.println("  \"integratorOrder\" : " + ic.order);
 		System.out.println("}");
 	}
 }
