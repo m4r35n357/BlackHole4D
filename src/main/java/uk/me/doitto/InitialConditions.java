@@ -36,9 +36,9 @@ public class InitialConditions {
 	
 	public InitialConditions(Trajectory t, double rMin, double rMax, double thetaMin, Spin a, double factorL, Integrator i) {
 		this.mu = (t == Trajectory.PARTICLE) ? 1.0 : 0.0;
-		boolean singular = abs(rMax - rMin) > 2.0 * tolerance;
-		this.r0 = singular ? rMin: rMin - tolerance;
-		this.r1 = singular ? rMax: rMax + tolerance;
+		boolean nonsingular = abs(rMax - rMin) > 2.0 * tolerance;
+		this.r0 = nonsingular ? rMin: rMin - tolerance;
+		this.r1 = nonsingular ? rMax: rMax + tolerance;
 		this.th0 = thetaMin > 0.01 ? thetaMin:  0.01;
 		switch (a) {
 			case RETROGRADE: this.a = -1.0; break;
@@ -94,7 +94,7 @@ public class InitialConditions {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		InitialConditions ic = new InitialConditions(Trajectory.PARTICLE, 12.0, 12.0, 0.0, Spin.PROGRADE, 1.0, Integrator.STORMER_VERLET_10);
+		InitialConditions ic = new InitialConditions(Trajectory.PARTICLE, 12.0, 12.0, PI / 2, Spin.ZERO, 1.0, Integrator.STORMER_VERLET_8);
 		ic.solve();
 		new KerrMotion(ic.M, ic.a, ic.mu, ic.E, ic.L * ic.factorL, ic.Q, ic.r1, ic.th0, ic.time, ic.step, ic.order).simulate();
 		System.out.println("");
