@@ -18,6 +18,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
@@ -125,20 +126,22 @@ public final class KerrMotion {
 	 * @throws IOException 
 	 */
 	public static void main (String[] args) throws IOException {
+		BufferedReader bufferedReader;
 		if (args.length == 1) {
-			BufferedReader bufferedReader = new BufferedReader(new FileReader(new File(args[0])));
-			String data = "";
-			String line = bufferedReader.readLine();
-			while (line != null) {
-				data += line;
-				line = bufferedReader.readLine();
-			}
-			bufferedReader.close();
-			JSONObject ic = (JSONObject)JSONValue.parse(data);
-			new KerrMotion ((Double)ic.get("M"), (Double)ic.get("a"), (Double)ic.get("mu"), (Double)ic.get("E"), (Double)ic.get("Lz"), (Double)ic.get("C"),
-				(Double)ic.get("r"), (Double)ic.get("theta"), (Double)ic.get("time"), (Double)ic.get("step"),((Long)ic.get("integratorOrder")).intValue()).simulate();
+			bufferedReader = new BufferedReader(new FileReader(new File(args[0])));
 		} else {
-			System.err.println("Missing file name, giving up!");
+			bufferedReader = new BufferedReader(new InputStreamReader(System.in));
+//			System.err.println("Missing file name, giving up!");
 		}
+		String data = "";
+		String line = bufferedReader.readLine();
+		while (line != null) {
+			data += line;
+			line = bufferedReader.readLine();
+		}
+		bufferedReader.close();
+		JSONObject ic = (JSONObject)JSONValue.parse(data);
+		new KerrMotion ((Double)ic.get("M"), (Double)ic.get("a"), (Double)ic.get("mu"), (Double)ic.get("E"), (Double)ic.get("Lz"), (Double)ic.get("C"),
+			(Double)ic.get("r"), (Double)ic.get("theta"), (Double)ic.get("time"), (Double)ic.get("step"),((Long)ic.get("integratorOrder")).intValue()).simulate();
 	}
 }
