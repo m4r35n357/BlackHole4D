@@ -33,7 +33,7 @@ public final class KerrMotion {
 	
 	private double r2, ra2, sth, cth, sth2, cth2, delta, R, P1, P2, THETA, TH;  // intermediate variables
 	
-	private double mino, t, r, th, ph, rDot, thDot, eCum, e, eR, eTh; // coordinates etc.
+	private double mino, tau, t, r, th, ph, rDot, thDot, eCum, e, eR, eTh; // coordinates etc.
 	
 	private Integrator symplectic;
 	
@@ -74,8 +74,10 @@ public final class KerrMotion {
 		P1 = ra2 * E - a * L;  // MTW eq.33.33b
 		P2 = mu2 * r2 + lmae2 + CC;
 		R = P1 * P1 - delta * P2;
+//		R = R >= 0.0 ? R : 0.0;
 		TH = a2 * (mu2 - E * E) + L * L / sth2;
 		THETA = CC - cth2 * TH;
+//		THETA = THETA >= 0.0 ? THETA : 0.0;
 	}
 	
 	private void errors () {
@@ -112,17 +114,19 @@ public final class KerrMotion {
 			errors();
 			double ra = sqrt(ra2);
 			System.out.printf("{\"mino\":%.9e, \"tau\":%.9e, \"E\":%.1f, \"ER\":%.1f, \"ETh\":%.1f, \"EC\":%.1f, \"t\":%.9e, \"r\":%.9e, \"th\":%.9e, \"ph\":%.9e, \"R\":%.9e, \"THETA\":%.9e, \"x\":%.9e, \"y\":%.9e, \"z\":%.9e}%n",
-					mino, (r2 + a2 * cth2) * mino, e, eR, eTh, 10.0 * log10(eCum + 1.0e-18), - t, r, th, ph, R, THETA, ra * sth * cos(ph), ra * sth * sin(ph), r * cth);
-			mino += ts;
+					mino, tau, e, eR, eTh, 10.0 * log10(eCum + 1.0e-18), - t, r, th, ph, R, THETA, ra * sth * cos(ph), ra * sth * sin(ph), r * cth);
 			update_t_phi();  // Euler
 			symplectic.solve(this);
+			mino += ts;
+			tau += ts * (r2 + a2 * cth2);
 		} while (r > horizon && mino <= duration);  // outside horizon and in proper time range
 		return eCum;
 	}
 	
 	/**
 	 * Read initial conditions from a JSON-formatted parameter file using Google's SimpleJSON library
-	 * @param args[0] the path to the file
+	 * 
+	 * @param args[0] the path to the file, if no args then read from stdin
 	 * @throws IOException 
 	 */
 	public static void main (String[] args) throws IOException {
@@ -131,7 +135,6 @@ public final class KerrMotion {
 			bufferedReader = new BufferedReader(new FileReader(new File(args[0])));
 		} else {
 			bufferedReader = new BufferedReader(new InputStreamReader(System.in));
-//			System.err.println("Missing file name, giving up!");
 		}
 		String data = "";
 		String line = bufferedReader.readLine();
