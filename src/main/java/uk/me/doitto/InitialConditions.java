@@ -82,7 +82,7 @@ public class InitialConditions {
 	}
 	
 	private void solve () {
-		while (qDot().dotProduct(qDot()) > 1.0e-18) {
+		while (qDot().dotProduct(qDot()) > 1.0e-21) {
 			RealVector correction = new LUDecomposition(jacobian()).getSolver().solve(qDot());
 			E -= correction.getEntry(0);
 			L -= correction.getEntry(1);
@@ -94,7 +94,7 @@ public class InitialConditions {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		InitialConditions ic = new InitialConditions(Trajectory.PARTICLE, 12.0, 12.0, PI / 2, Spin.ZERO, 1.0, Integrator.STORMER_VERLET_8);
+		InitialConditions ic = new InitialConditions(Trajectory.PARTICLE, 5.9, 5.9, PI / 2, Spin.ZERO, 1.0, Integrator.STORMER_VERLET_8);
 		ic.solve();
 		new KerrMotion(ic.M, ic.a, ic.mu, ic.E, ic.L * ic.factorL, ic.Q, ic.r1, ic.th0, ic.time, ic.step, ic.order).simulate();
 		System.out.println("");
