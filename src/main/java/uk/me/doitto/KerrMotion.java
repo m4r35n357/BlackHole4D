@@ -71,13 +71,13 @@ public final class KerrMotion {
 		sth2 = sth * sth;
 		cth2 = cth * cth;
 		delta = ra2 - 2.0 * M * r;
-		P1 = ra2 * E - a * L;  // MTW eq.33.33b
+		P1 = ra2 * E - a * L;
 		P2 = mu2 * r2 + lmae2 + CC;
-		R = P1 * P1 - delta * P2;
-//		R = R >= 0.0 ? R : 0.0;
+		R = P1 * P1 - delta * P2;  // MTW eq.33.33b/c
+		R = R >= 0.0 ? R : 0.0;
 		TH = a2 * (mu2 - E * E) + L * L / sth2;
-		THETA = CC - cth2 * TH;
-//		THETA = THETA >= 0.0 ? THETA : 0.0;
+		THETA = CC - cth2 * TH;  // MTW eq.33.33a
+		THETA = THETA >= 0.0 ? THETA : 0.0;
 	}
 	
 	private void errors () {
@@ -101,14 +101,14 @@ public final class KerrMotion {
 	}
 	
 	void updateP (double c) {
-		rDot += c * ts * (2.0 * r * E * P1 - P2 * (r - M) - mu2 * r * delta);  // see Maxima file bh.wxm, Mino Time
-		thDot += c * ts * (cth * sth * TH + L * L * cth2 * cth / (sth2 * sth));  // see Maxima file bh.wxm, Mino Time
+		rDot += c * ts * (2.0 * r * E * P1 - P2 * (r - M) - mu2 * r * delta);  // dR/dr see Maxima file bh.wxm, Mino Time
+		thDot += c * ts * (cth * sth * TH + L * L * cth2 * cth / (sth2 * sth));  // dTHETA/dtheta see Maxima file bh.wxm, Mino Time
 	}
 	
 	public double simulate () {
 		updateIntermediates();
-		rDot = -sqrt(R >= 0.0 ? R: 0.0);  // MTW eq.33.32b and 33.33c
-		thDot = -sqrt(THETA >= 0.0 ? THETA: 0.0);  // MTW eq.33.32a and 33.33a
+		rDot = -sqrt(R);  // MTW eq.33.32b
+		thDot = -sqrt(THETA);  // MTW eq.33.32a
 		symplectic.init();
 		do {
 			errors();
