@@ -29,7 +29,7 @@ import org.json.simple.JSONValue;
  */
 public final class KerrMotion {
 	
-	private final double M, a, horizon, mu2, E, L, CC, duration, ts, a2, lmae2; // constants for this spacetime
+	private final double M, a, horizon, mu2, E, L, CC, duration, ts, a2, lmae2, nf = 1.0e-18; // constants for this spacetime
 	
 	private double r2, ra2, sth, cth, sth2, cth2, delta, R, P1, P2, THETA, TH;  // intermediate variables
 	
@@ -74,18 +74,16 @@ public final class KerrMotion {
 		P1 = ra2 * E - a * L;
 		P2 = mu2 * r2 + lmae2 + CC;
 		R = P1 * P1 - delta * P2;  // MTW eq.33.33b/c
-		R = R >= 0.0 ? R : 0.0;
 		TH = a2 * (mu2 - E * E) + L * L / sth2;
 		THETA = CC - cth2 * TH;  // MTW eq.33.33a
-		THETA = THETA >= 0.0 ? THETA : 0.0;
 	}
 	
 	private void errors () {
-		double e_r = abs(rDot * rDot - R) / 2.0;
-		double e_th = abs(thDot * thDot - THETA) / 2.0;
-		eR = 10.0 * log10(e_r + 1.0e-18);
-		eTh = 10.0 * log10(e_th + 1.0e-18);
-		e =  10.0 * log10(e_r + e_th + 1.0e-18);
+		double e_r = abs(rDot * rDot - (R >= 0.0 ? R : 0.0)) / 2.0;
+		double e_th = abs(thDot * thDot - (THETA >= 0.0 ? THETA : 0.0)) / 2.0;
+		eR = 10.0 * log10(e_r >= nf ? e_r : nf);
+		eTh = 10.0 * log10(e_th >= nf ? e_th : nf);
+		e =  10.0 * log10(e_r + e_th >= nf ? e_r + e_th: nf);
 		eCum += e_r + e_th;
 	}
 	
@@ -107,14 +105,14 @@ public final class KerrMotion {
 	
 	public double simulate () {
 		updateIntermediates();
-		rDot = -sqrt(R);  // MTW eq.33.32b
-		thDot = -sqrt(THETA);  // MTW eq.33.32a
+		rDot = - sqrt(R >= 0.0 ? R : 0.0);  // MTW eq.33.32b
+		thDot = - sqrt(THETA >= 0.0 ? THETA : 0.0);  // MTW eq.33.32a
 		symplectic.init();
 		do {
 			errors();
 			double ra = sqrt(ra2);
 			System.out.printf("{\"mino\":%.9e, \"tau\":%.9e, \"E\":%.1f, \"ER\":%.1f, \"ETh\":%.1f, \"EC\":%.1f, \"t\":%.9e, \"r\":%.9e, \"th\":%.9e, \"ph\":%.9e, \"R\":%.9e, \"THETA\":%.9e, \"x\":%.9e, \"y\":%.9e, \"z\":%.9e}%n",
-					mino, tau, e, eR, eTh, 10.0 * log10(eCum + 1.0e-18), - t, r, th, ph, R, THETA, ra * sth * cos(ph), ra * sth * sin(ph), r * cth);
+					mino, tau, e, eR, eTh, 10.0 * log10(eCum >= nf ? eCum : nf), - t, r, th, ph, R, THETA, ra * sth * cos(ph), ra * sth * sin(ph), r * cth);
 			update_t_phi();  // Euler
 			symplectic.solve(this);
 			mino += ts;
