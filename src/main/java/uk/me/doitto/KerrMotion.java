@@ -29,7 +29,7 @@ import org.json.simple.JSONValue;
  */
 public final class KerrMotion {
 	
-	private final double M, a, horizon, mu2, E, L, CC, duration, ts, a2, lmae2, nf = 1.0e-18; // constants for this spacetime
+	private final double M, a, horizon, mu2, E, E2, L, L2, Q, duration, ts, a2, aE, a2E, aL, l_ae2, nf = 1.0e-18; // constants for this spacetime
 	
 	private double r2, ra2, sth, cth, sth2, cth2, delta, R, P1, P2, THETA, TH;  // intermediate variables
 	
@@ -40,13 +40,20 @@ public final class KerrMotion {
 	/**
 	 * Constructor, constants and initial conditions
 	 */
-	public KerrMotion (double mass, double spin, double m, double E, double L, double C, double r, double th, double T, double ts, int order) {
+	public KerrMotion (double mass, double spin, double m, double E, double L, double CC, double r, double th, double T, double ts, int order) {
 		M = mass;
 		a = spin;
+		a2 = a * a;
 		mu2 = m * m;
 		this.E = E;
+		this.E2 = E * E;
+		aE = a * E;
+		a2E = a2 * E;
 		this.L = L;
-		CC = C;
+		this.L2 = L * L;
+		aL = a * L;
+		l_ae2 = (L - a * E) * (L - a * E);
+		Q = CC;
 		this.r = r;
 		this.th = th;
 		duration = T;
@@ -58,9 +65,7 @@ public final class KerrMotion {
 			case 8: symplectic = STORMER_VERLET_8; break;
 			case 10: symplectic = STORMER_VERLET_10; break;
 		}
-		a2 = a * a;
 		horizon = M * (1.0 + sqrt(1.0 - a2));
-		lmae2 = (L - a * E) * (L - a * E);
 	}
 
 	private void updateIntermediates () {
@@ -71,11 +76,11 @@ public final class KerrMotion {
 		sth2 = sth * sth;
 		cth2 = cth * cth;
 		delta = ra2 - 2.0 * M * r;
-		P1 = ra2 * E - a * L;
-		P2 = mu2 * r2 + lmae2 + CC;
+		P1 = ra2 * E - aL;
+		P2 = mu2 * r2 + l_ae2 + Q;
 		R = P1 * P1 - delta * P2;  // MTW eq.33.33b/c
-		TH = a2 * (mu2 - E * E) + L * L / sth2;
-		THETA = CC - cth2 * TH;  // MTW eq.33.33a
+		TH = a2 * (mu2 - E2) + L2 / sth2;
+		THETA = Q - cth2 * TH;  // MTW eq.33.33a
 	}
 	
 	private void errors () {
@@ -88,8 +93,8 @@ public final class KerrMotion {
 	}
 	
 	private void update_t_phi () {
-		t -= ts * (ra2 * P1 / delta + a * L - a * a * E * sth2);  // MTW eq.33.32d
-		ph += ts * (a * P1 / delta - a * E + L / sth2);  // MTW eq.33.32c
+		t -= ts * (ra2 * P1 / delta + aL - a2E * sth2);  // MTW eq.33.32d
+		ph += ts * (a * P1 / delta - aE + L / sth2);  // MTW eq.33.32c
 	}
 	
 	void updateQ (double c) {
@@ -100,7 +105,7 @@ public final class KerrMotion {
 	
 	void updateP (double c) {
 		rDot += c * ts * (2.0 * r * E * P1 - P2 * (r - M) - mu2 * r * delta);  // dR/dr see Maxima file bh.wxm, Mino Time
-		thDot += c * ts * (cth * sth * TH + L * L * cth2 * cth / (sth2 * sth));  // dTHETA/dtheta see Maxima file bh.wxm, Mino Time
+		thDot += c * ts * (cth * sth * TH + L2 * cth2 * cth / (sth2 * sth));  // dTHETA/dtheta see Maxima file bh.wxm, Mino Time
 	}
 	
 	public double simulate () {
