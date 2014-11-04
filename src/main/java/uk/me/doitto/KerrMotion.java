@@ -29,7 +29,7 @@ import org.json.simple.JSONValue;
  */
 public final class KerrMotion {
 	
-	private final double M, a, horizon, mu2, E, E2, L, L2, Q, duration, ts, a2, aE, a2E, aL, l_ae2, nf = 1.0e-18; // constants for this spacetime
+	private final double M, a, horizon, mu2, E, E2, L, L2, Q, T, ts, a2, aE, a2E, aL, l_ae2, nf = 1.0e-18; // constants for this spacetime
 	
 	private double r2, ra2, sth, cth, sth2, cth2, delta, R, P1, P2, THETA, TH;  // intermediate variables
 	
@@ -40,24 +40,25 @@ public final class KerrMotion {
 	/**
 	 * Constructor, constants and initial conditions
 	 */
-	public KerrMotion (double mass, double spin, double m, double E, double L, double CC, double r, double th, double T, double ts, int order) {
-		M = mass;
+	public KerrMotion (double bhMass, double spin, double pMass, double energy, double zAngMom, double CC, double r0, double th0, double duration, double timestep, int order) {
+		M = bhMass;
 		a = spin;
 		a2 = a * a;
-		mu2 = m * m;
-		this.E = E;
-		this.E2 = E * E;
+		horizon = M * (1.0 + sqrt(1.0 - a2));
+		mu2 = pMass * pMass;
+		E = energy;
+		E2 = E * E;
 		aE = a * E;
 		a2E = a2 * E;
-		this.L = L;
-		this.L2 = L * L;
+		L = zAngMom;
+		L2 = L * L;
 		aL = a * L;
 		l_ae2 = (L - a * E) * (L - a * E);
 		Q = CC;
-		this.r = r;
-		this.th = th;
-		duration = T;
-		this.ts = ts;
+		r = r0;
+		th = th0;
+		T = duration;
+		ts = timestep;
 		switch (order) {
 			case 2: symplectic = STORMER_VERLET_2; break;
 			case 4: symplectic = STORMER_VERLET_4; break;
@@ -65,9 +66,12 @@ public final class KerrMotion {
 			case 8: symplectic = STORMER_VERLET_8; break;
 			case 10: symplectic = STORMER_VERLET_10; break;
 		}
-		horizon = M * (1.0 + sqrt(1.0 - a2));
 	}
 
+	private double clamp (double potential) {
+		return potential >= 0.0 ? potential : 0.0;
+	}
+	
 	private void updateIntermediates () {
 		r2 = r * r;
 		ra2 = r2 + a2;
@@ -84,8 +88,8 @@ public final class KerrMotion {
 	}
 	
 	private void errors () {
-		double e_r = abs(rDot * rDot - (R >= 0.0 ? R : 0.0)) / 2.0;
-		double e_th = abs(thDot * thDot - (THETA >= 0.0 ? THETA : 0.0)) / 2.0;
+		double e_r = abs(rDot * rDot - clamp(R)) / 2.0;
+		double e_th = abs(thDot * thDot - clamp(THETA)) / 2.0;
 		eR = 10.0 * log10(e_r >= nf ? e_r : nf);
 		eTh = 10.0 * log10(e_th >= nf ? e_th : nf);
 		e =  10.0 * log10(e_r + e_th >= nf ? e_r + e_th: nf);
@@ -110,8 +114,8 @@ public final class KerrMotion {
 	
 	public double simulate () {
 		updateIntermediates();
-		rDot = - sqrt(R >= 0.0 ? R : 0.0);  // MTW eq.33.32b
-		thDot = - sqrt(THETA >= 0.0 ? THETA : 0.0);  // MTW eq.33.32a
+		rDot = - sqrt(clamp(R));  // MTW eq.33.32b
+		thDot = - sqrt(clamp(THETA));  // MTW eq.33.32a
 		symplectic.init();
 		do {
 			errors();
@@ -122,7 +126,7 @@ public final class KerrMotion {
 			symplectic.solve(this);
 			mino += ts;
 			tau += ts * (r2 + a2 * cth2);
-		} while (r > horizon && mino <= duration);  // outside horizon and in proper time range
+		} while (r > horizon && mino <= T);  // outside horizon and in proper time range
 		return eCum;
 	}
 	
