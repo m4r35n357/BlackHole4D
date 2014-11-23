@@ -128,7 +128,6 @@ public final class KerrMotion {
 		updateIntermediates();
 		rDot = - sqrt(clamp(R));  // MTW eq.33.32b
 		thDot = - sqrt(clamp(THETA));  // MTW eq.33.32a
-		symplectic.init();
 		do {
 			errors();
 			double ra = sqrt(ra2);

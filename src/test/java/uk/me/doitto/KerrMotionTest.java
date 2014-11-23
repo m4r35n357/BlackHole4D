@@ -75,7 +75,7 @@ public class KerrMotionTest {
 
 	@Test
     public void light6 () {
-		double error = new KerrMotion(1.0, 1.0, 0.0, 1.0, 1.999, 3.2590, 1.0316, PI / 2.0, 10.0, 0.001, 8).simulate();
+		double error = new KerrMotion(1.0, 1.0, 0.0, 1.0, 1.999, 3.2590, 1.0316, PI / 2.0, 10.0, 0.001, 10).simulate();
 		assertTrue("Error: " + error, error < 1.0e-4);
 	}
 
@@ -195,7 +195,7 @@ public class KerrMotionTest {
 
     @Test
     public void precessingAMinus () {
-    	double error = new KerrMotion(1.0, -1.0, 1.0, 0.989352727272727, -4.683, 0.0, 12.201, PI / 2.0, 10.0, 0.001, 8).simulate();
+    	double error = new KerrMotion(1.0, -1.0, 1.0, 0.989352727272727, -4.683, 0.0, 12.201, PI / 2.0, 10.0, 0.001, 10).simulate();
     	assertTrue("Error: " + error, error < 1.0e-4);
     }
 
