@@ -64,7 +64,7 @@ public enum Integrator {
 	 * @param s the KerrMotion instance
 	 * @param y composition coefficient
 	 */
-	protected final void svBase (KerrMotion s, double y) {
+	protected final void sv (KerrMotion s, double y) {
 		double halfY = 0.5 * y;
 		s.updateQ(halfY);
 		s.updateP(y);
@@ -78,10 +78,10 @@ public enum Integrator {
 	void solve (KerrMotion s) {
 		int tmp = coefficients.length - 1;
 		for (int i = 0; i < tmp; i++) {
-			svBase(s, coefficients[i]);
+			sv(s, coefficients[i]);
 		}
 		for (int i = tmp; i >= 0; i--) {
-			svBase(s, coefficients[i]);
+			sv(s, coefficients[i]);
 		}
 	}
 }
