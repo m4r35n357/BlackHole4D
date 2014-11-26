@@ -20,11 +20,11 @@ import static java.lang.Math.cos;
 import static java.lang.Math.log10;
 import static java.lang.Math.sin;
 import static java.lang.Math.sqrt;
-import static uk.me.doitto.Integrator.STORMER_VERLET_10;
-import static uk.me.doitto.Integrator.STORMER_VERLET_2;
-import static uk.me.doitto.Integrator.STORMER_VERLET_4;
-import static uk.me.doitto.Integrator.STORMER_VERLET_6;
-import static uk.me.doitto.Integrator.STORMER_VERLET_8;
+import static uk.me.doitto.Integrator.SV10;
+import static uk.me.doitto.Integrator.SV2;
+import static uk.me.doitto.Integrator.SV4;
+import static uk.me.doitto.Integrator.SV6;
+import static uk.me.doitto.Integrator.SV8;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -47,7 +47,7 @@ public final class KerrMotion {
 	
 	private double mino, tau, t, r, th, ph, rDot, thDot, eCum, e, eR, eTh; // coordinates etc.
 	
-	private Integrator symplectic;
+	private Integrator integrator = SV2;
 	
 	/**
 	 * Constructor, constants and initial conditions
@@ -72,11 +72,11 @@ public final class KerrMotion {
 		T = duration;
 		ts = timestep;
 		switch (order) {
-			case 2: symplectic = STORMER_VERLET_2; break;
-			case 4: symplectic = STORMER_VERLET_4; break;
-			case 6: symplectic = STORMER_VERLET_6; break;
-			case 8: symplectic = STORMER_VERLET_8; break;
-			case 10: symplectic = STORMER_VERLET_10; break;
+			case 2: integrator = SV2; break;
+			case 4: integrator = SV4; break;
+			case 6: integrator = SV6; break;
+			case 8: integrator = SV8; break;
+			case 10: integrator = SV10; break;
 		}
 	}
 
@@ -134,7 +134,7 @@ public final class KerrMotion {
 			System.out.printf("{\"mino\":%.9e, \"tau\":%.9e, \"E\":%.1f, \"ER\":%.1f, \"ETh\":%.1f, \"EC\":%.1f, \"t\":%.9e, \"r\":%.9e, \"th\":%.9e, \"ph\":%.9e, \"R\":%.9e, \"THETA\":%.9e, \"x\":%.9e, \"y\":%.9e, \"z\":%.9e}%n",
 					mino, tau, e, eR, eTh, 10.0 * log10(eCum >= nf ? eCum : nf), - t, r, th, ph, R, THETA, ra * sth * cos(ph), ra * sth * sin(ph), r * cth);
 			update_t_phi();  // Euler
-			symplectic.solve(this);
+			integrator.solve(this);
 			mino += ts;
 			tau += ts * (r2 + a2 * cth2);
 		} while (r > horizon && mino <= T);  // outside horizon and in proper time range
@@ -163,6 +163,6 @@ public final class KerrMotion {
 		bufferedReader.close();
 		JSONObject ic = (JSONObject)JSONValue.parse(data);
 		new KerrMotion ((Double)ic.get("M"), (Double)ic.get("a"), (Double)ic.get("mu"), (Double)ic.get("E"), (Double)ic.get("Lz"), (Double)ic.get("C"),
-			(Double)ic.get("r"), (Double)ic.get("theta"), (Double)ic.get("time"), (Double)ic.get("step"),((Long)ic.get("integratorOrder")).intValue()).simulate();
+			(Double)ic.get("r"), (Double)ic.get("theta"), (Double)ic.get("time"), (Double)ic.get("step"), ((Long)ic.get("integratorOrder")).intValue()).simulate();
 	}
 }

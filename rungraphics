@@ -2,10 +2,11 @@
 
 ic=${1:-''}
 
+jarfile='target/blackhole4d-1.11-SNAPSHOT-jar-with-dependencies.jar'
 d=data
 pydir='../../Python/BlackHole4dPython'
 
-java -jar target/blackhole4d-1.11-SNAPSHOT-jar-with-dependencies.jar $ic >$d &
+java -jar $jarfile <$ic >$d &
 PID=$!
 sleep 1
 $pydir/filegraphics.py $d $ic&
@@ -13,12 +14,14 @@ wait $PID
 set $(wc -l $d)
 if [ $1 -gt 10000 ]
 then
-	$pydir/filedata.py $d $(($1 / 2000)) &
+#	$pydir/filedata.py $d $(($1 / 2000)) &
+	$pydir/fileminordata.py $d $(($1 / 2000)) &
 	$pydir/fileprogress.py $d $(($1 / 2000)) &
-	$pydir/filelissajous.py $d $(($1 / 2000)) &
+#	$pydir/filelissajous.py $d $(($1 / 2000)) &
 else
-	$pydir/filedata.py $d 1 &
+#	$pydir/filedata.py $d 1 &
+	$pydir/fileminordata.py $d 1 &
 	$pydir/fileprogress.py $d 1 &
-	$pydir/filelissajous.py $d 1 &
+#	$pydir/filelissajous.py $d 1 &
 fi
 

@@ -18,7 +18,6 @@ package uk.me.doitto;
 import static java.lang.Math.PI;
 import static java.lang.Math.abs;
 import static java.lang.Math.cos;
-import static java.lang.Math.pow;
 import static java.lang.Math.sin;
 
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
@@ -60,11 +59,11 @@ public class InitialConditions {
 		}
 		this.factorL = factorL;
 		switch (i) {
-			case STORMER_VERLET_2: this.order = 2; break;
-			case STORMER_VERLET_4: this.order = 4; break;
-			case STORMER_VERLET_6: this.order = 6; break;
-			case STORMER_VERLET_8: this.order = 8; break;
-			case STORMER_VERLET_10: this.order = 10; break;
+			case SV2: this.order = 2; break;
+			case SV4: this.order = 4; break;
+			case SV6: this.order = 6; break;
+			case SV8: this.order = 8; break;
+			case SV10: this.order = 10; break;
 			default: this.order = 2; break;
 		}
 	}
@@ -106,7 +105,7 @@ public class InitialConditions {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		InitialConditions ic = new InitialConditions(Trajectory.PARTICLE, 5.9, 5.9, PI / 2, Spin.ZERO, 1.0, Integrator.STORMER_VERLET_8);
+		InitialConditions ic = new InitialConditions(Trajectory.PARTICLE, 5.9, 5.9, PI / 2, Spin.ZERO, 1.0, Integrator.SV8);
 		ic.solve();
 		new KerrMotion(ic.M, ic.a, ic.mu, ic.E, ic.L * ic.factorL, ic.Q, ic.r1, ic.th0, ic.time, ic.step, ic.order).simulate();
 		System.out.println("");
