@@ -41,7 +41,7 @@ import org.json.simple.JSONValue;
  */
 public final class KerrMotion {
 	
-	private final double M, a, horizon, mu2, E, E2, L, L2, Q, T, ts, a2, aE, a2E, aL, l_ae2, nf = 1.0e-18; // constants for this spacetime
+	private final double M, a, horizon, mu2, E, E2, L, L2, Q, T, ts, a2, aE, a2E, aL, l_ae2, a2mu2_E2, nf = 1.0e-18; // constants for this spacetime
 	
 	private double r2, ra2, sth, cth, sth2, cth2, delta, R, P1, P2, THETA, TH;  // intermediate variables
 	
@@ -66,6 +66,7 @@ public final class KerrMotion {
 		L2 = L * L;
 		aL = a * L;
 		l_ae2 = (L - a * E) * (L - a * E);
+		a2mu2_E2 = a2 * (mu2 - E2);
 		Q = CC;
 		r = r0;
 		th = th0;
@@ -95,7 +96,7 @@ public final class KerrMotion {
 		P1 = ra2 * E - aL;
 		P2 = mu2 * r2 + l_ae2 + Q;
 		R = P1 * P1 - delta * P2;  // MTW eq.33.33b/c
-		TH = a2 * (mu2 - E2) + L2 / sth2;
+		TH = a2mu2_E2 + L2 / sth2;
 		THETA = Q - cth2 * TH;  // MTW eq.33.33a
 	}
 	
@@ -154,14 +155,14 @@ public final class KerrMotion {
 		} else {
 			bufferedReader = new BufferedReader(new InputStreamReader(System.in));
 		}
-		String data = "";
+		StringBuilder data = new StringBuilder();
 		String line = bufferedReader.readLine();
 		while (line != null) {
-			data += line;
+			data.append(line);
 			line = bufferedReader.readLine();
 		}
 		bufferedReader.close();
-		JSONObject ic = (JSONObject)JSONValue.parse(data);
+		JSONObject ic = (JSONObject)JSONValue.parse(data.toString());
 		new KerrMotion ((Double)ic.get("M"), (Double)ic.get("a"), (Double)ic.get("mu"), (Double)ic.get("E"), (Double)ic.get("Lz"), (Double)ic.get("C"),
 			(Double)ic.get("r"), (Double)ic.get("theta"), (Double)ic.get("time"), (Double)ic.get("step"), ((Long)ic.get("integratorOrder")).intValue()).simulate();
 	}
