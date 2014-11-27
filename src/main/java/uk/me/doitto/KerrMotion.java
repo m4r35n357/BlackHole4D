@@ -93,9 +93,9 @@ public final class KerrMotion {
 		sth2 = sth * sth;
 		cth2 = cth * cth;
 		delta = ra2 - 2.0 * M * r;
-		P1 = ra2 * E - aL;
+		P1 = ra2 * E - aL;  // MTW eq.33.33b, ignoring charge term
 		P2 = mu2 * r2 + l_ae2 + Q;
-		R = P1 * P1 - delta * P2;  // MTW eq.33.33b/c
+		R = P1 * P1 - delta * P2;  // MTW eq.33.33c
 		TH = a2mu2_E2 + L2 / sth2;
 		THETA = Q - cth2 * TH;  // MTW eq.33.33a
 	}
