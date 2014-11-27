@@ -53,35 +53,35 @@ public enum Integrator {
 		public final static double y = 1.0 / (2.0 - CUBE_ROOT_2);
 	}
 	
-	protected double[] coefficients;
+	protected double[] gammas;
 	
 	Integrator (double[] coefficients) {
-		this.coefficients = coefficients;
+		this.gammas = coefficients;
 	}
 	
 	/**
 	 * Basic 2nd-order Stormer-Verlet step which is composed into higher order methods
-	 * @param s the KerrMotion instance
+	 * @param bh the KerrMotion instance
 	 * @param y composition coefficient
 	 */
-	protected final void sv (KerrMotion s, double y) {
+	protected final void sv (KerrMotion bh, double y) {
 		double halfY = 0.5 * y;
-		s.updateQ(halfY);
-		s.updateP(y);
-		s.updateQ(halfY);
+		bh.updateQ(halfY);
+		bh.updateP(y);
+		bh.updateQ(halfY);
 	}
 	
 	/**
 	 * Perform one iteration step for the configured integrator
-	 * @param s the KerrMotion object reference, for passing through to the Q & P update methods
+	 * @param bh the KerrMotion object reference, for passing through to the Q & P update methods
 	 */
-	void solve (KerrMotion s) {
-		int tmp = coefficients.length - 1;
+	void solve (KerrMotion bh) {
+		int tmp = gammas.length - 1;
 		for (int i = 0; i < tmp; i++) {
-			sv(s, coefficients[i]);
+			sv(bh, gammas[i]);
 		}
 		for (int i = tmp; i >= 0; i--) {
-			sv(s, coefficients[i]);
+			sv(bh, gammas[i]);
 		}
 	}
 }
