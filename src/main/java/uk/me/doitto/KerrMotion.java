@@ -45,7 +45,7 @@ public final class KerrMotion {
 	
 	private double r2, ra2, sth, cth, sth2, cth2, delta, R, P1, P2, THETA, TH;  // intermediate variables
 	
-	private double mino, tau, t, r, th, ph, rDot, thDot, eCum, e, eR, eTh; // coordinates etc.
+	private double mino, tau, t, r, th, ph, tDot, rDot, thDot, phDot, eCum, e, eR, eTh; // coordinates etc.
 	
 	private Integrator integrator = SV2;
 	
@@ -110,8 +110,10 @@ public final class KerrMotion {
 	}
 	
 	private void update_t_phi () {
-		t -= ts * (ra2 * P1 / delta + aL - a2E * sth2);  // MTW eq.33.32d
-		ph += ts * (a * P1 / delta - aE + L / sth2);  // MTW eq.33.32c
+		tDot = ra2 * P1 / delta + aL - a2E * sth2;  // MTW eq.33.32d
+		t -= ts * tDot;
+		phDot = a * P1 / delta - aE + L / sth2;  // MTW eq.33.32c
+		ph += ts * phDot;
 	}
 	
 	void updateQ (double c) {
@@ -132,8 +134,8 @@ public final class KerrMotion {
 		do {
 			errors();
 			double ra = sqrt(ra2);
-			System.out.printf("{\"mino\":%.9e, \"tau\":%.9e, \"E\":%.1f, \"ER\":%.1f, \"ETh\":%.1f, \"EC\":%.1f, \"t\":%.9e, \"r\":%.9e, \"th\":%.9e, \"ph\":%.9e, \"R\":%.9e, \"THETA\":%.9e, \"x\":%.9e, \"y\":%.9e, \"z\":%.9e}%n",
-					mino, tau, e, eR, eTh, 10.0 * log10(eCum >= nf ? eCum : nf), - t, r, th, ph, R, THETA, ra * sth * cos(ph), ra * sth * sin(ph), r * cth);
+			System.out.printf("{\"mino\":%.9e, \"tau\":%.9e, \"E\":%.1f, \"ER\":%.1f, \"ETh\":%.1f, \"EC\":%.1f, \"t\":%.9e, \"r\":%.9e, \"th\":%.9e, \"ph\":%.9e, \"tDot\":%.9e, \"rDot\":%.9e, \"thDot\":%.9e, \"phDot\":%.9e, \"x\":%.9e, \"y\":%.9e, \"z\":%.9e}%n",
+					mino, tau, e, eR, eTh, 10.0 * log10(eCum >= nf ? eCum : nf), - t, r, th, ph, tDot, rDot, thDot, phDot, ra * sth * cos(ph), ra * sth * sin(ph), r * cth);
 			update_t_phi();  // Euler
 			integrator.solve(this);
 			mino += ts;
