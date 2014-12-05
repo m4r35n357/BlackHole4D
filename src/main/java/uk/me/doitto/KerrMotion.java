@@ -109,10 +109,14 @@ public final class KerrMotion {
 		eCum += e_r + e_th;
 	}
 	
-	private void update_t_phi () {
+	private void update_t_phi_Dot () {
 		tDot = ra2 * P1 / delta + aL - a2E * sth2;  // MTW eq.33.32d
-		t -= ts * tDot;
 		phDot = a * P1 / delta - aE + L / sth2;  // MTW eq.33.32c
+	}
+	
+	private void update_t_phi () {
+		update_t_phi_Dot();
+		t -= ts * tDot;
 		ph += ts * phDot;
 	}
 	
@@ -131,6 +135,7 @@ public final class KerrMotion {
 		updateIntermediates();
 		rDot = - sqrt(clamp(R));  // MTW eq.33.32b
 		thDot = - sqrt(clamp(THETA));  // MTW eq.33.32a
+		update_t_phi_Dot();
 		do {
 			errors();
 			double ra = sqrt(ra2);
