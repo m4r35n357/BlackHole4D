@@ -116,7 +116,7 @@ public final class KerrMotion {
 	
 	private void update_t_phi () {
 		update_t_phi_Dot();
-		t -= ts * tDot;
+		t += ts * tDot;
 		ph += ts * phDot;
 	}
 	
@@ -140,7 +140,7 @@ public final class KerrMotion {
 			errors();
 			double ra = sqrt(ra2);
 			System.out.printf("{\"mino\":%.9e, \"tau\":%.9e, \"E\":%.1f, \"ER\":%.1f, \"ETh\":%.1f, \"EC\":%.1f, \"t\":%.9e, \"r\":%.9e, \"th\":%.9e, \"ph\":%.9e, \"tDot\":%.9e, \"rDot\":%.9e, \"thDot\":%.9e, \"phDot\":%.9e, \"x\":%.9e, \"y\":%.9e, \"z\":%.9e}%n",
-					mino, tau, e, eR, eTh, 10.0 * log10(eCum >= nf ? eCum : nf), - t, r, th, ph, tDot, rDot, thDot, phDot, ra * sth * cos(ph), ra * sth * sin(ph), r * cth);
+					mino, tau, e, eR, eTh, 10.0 * log10(eCum >= nf ? eCum : nf), t, r, th, ph, tDot, rDot, thDot, phDot, ra * sth * cos(ph), ra * sth * sin(ph), r * cth);
 			update_t_phi();  // Euler
 			integrator.solve(this);
 			mino += ts;
