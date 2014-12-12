@@ -53,10 +53,13 @@ public enum Integrator {
 		public final static double y = 1.0 / (2.0 - CUBE_ROOT_2);
 	}
 	
-	protected double[] gammas;
+	protected final double[] gammas;
+	
+	protected final int gammaLength;
 	
 	Integrator (double[] coefficients) {
 		this.gammas = coefficients;
+		this.gammaLength = coefficients.length - 1;
 	}
 	
 	/**
@@ -76,11 +79,10 @@ public enum Integrator {
 	 * @param bh the KerrMotion object reference, for passing through to the Q & P update methods
 	 */
 	void solve (KerrMotion bh) {
-		int tmp = gammas.length - 1;
-		for (int i = 0; i < tmp; i++) {
+		for (int i = 0; i < gammaLength; i++) {
 			sv(bh, gammas[i]);
 		}
-		for (int i = tmp; i >= 0; i--) {
+		for (int i = gammaLength; i >= 0; i--) {
 			sv(bh, gammas[i]);
 		}
 	}
