@@ -170,7 +170,7 @@ public final class KerrMotion {
 		}
 		bufferedReader.close();
 		JSONObject ic = (JSONObject)JSONValue.parse(data.toString());
-		new KerrMotion ((Double)ic.get("M"), (Double)ic.get("a"), (Double)ic.get("mu"), (Double)ic.get("E"), (Double)ic.get("Lz"), (Double)ic.get("C"),
-			(Double)ic.get("r"), (Double)ic.get("theta"), (Double)ic.get("time"), (Double)ic.get("step"), ((Long)ic.get("integratorOrder")).intValue()).simulate();
+		new KerrMotion ((double)ic.get("M"), (double)ic.get("a"), (double)ic.get("mu"), (double)ic.get("E"), (double)ic.get("Lz"), (double)ic.get("C"),
+			(double)ic.get("r"), (double)ic.get("theta"), (double)ic.get("time"), (double)ic.get("step"), ((Long)ic.get("integratorOrder")).intValue()).simulate();
 	}
 }

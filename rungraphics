@@ -14,14 +14,10 @@ wait $PID
 set $(wc -l $d)
 if [ $1 -gt 10000 ]
 then
-#	$pydir/filedata.py $d $(($1 / 2000)) &
-	$pydir/fileminordata.py $d $(($1 / 2000)) &
-	$pydir/fileprogress.py $d $(($1 / 2000)) &
-#	$pydir/filelissajous.py $d $(($1 / 2000)) &
+	$pydir/datachart.py $d $(($1 / 2000)) &
+	$pydir/errorchart.py $d $(($1 / 2000)) &
 else
-#	$pydir/filedata.py $d 1 &
-	$pydir/fileminordata.py $d 1 &
-	$pydir/fileprogress.py $d 1 &
-#	$pydir/filelissajous.py $d 1 &
+	$pydir/datachart.py $d 1 &
+	$pydir/errorchart.py $d 1 &
 fi
 
