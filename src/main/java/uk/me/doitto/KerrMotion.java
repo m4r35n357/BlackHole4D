@@ -137,14 +137,15 @@ public final class KerrMotion {
 		thDot = - sqrt(clamp(THETA));  // MTW eq.33.32a
 		update_t_phi_Dot();
 		do {
-			errors();
 			double ra = sqrt(ra2);
+			double sigma = (r2 + a2 * cth2);
+			errors();
 			System.out.printf("{\"mino\":%.9e, \"tau\":%.9e, \"E\":%.1f, \"ER\":%.1f, \"ETh\":%.1f, \"EC\":%.1f, \"t\":%.9e, \"r\":%.9e, \"th\":%.9e, \"ph\":%.9e, \"tDot\":%.9e, \"rDot\":%.9e, \"thDot\":%.9e, \"phDot\":%.9e, \"x\":%.9e, \"y\":%.9e, \"z\":%.9e}%n",
-					mino, tau, e, eR, eTh, 10.0 * log10(eCum >= nf ? eCum : nf), t, r, th, ph, tDot, rDot, thDot, phDot, ra * sth * cos(ph), ra * sth * sin(ph), r * cth);
+					mino, tau, e, eR, eTh, 10.0 * log10(eCum >= nf ? eCum : nf), t, r, th, ph, tDot / sigma, rDot / sigma, thDot / sigma, phDot / sigma, ra * sth * cos(ph), ra * sth * sin(ph), r * cth);
 			update_t_phi();  // Euler
 			integrator.solve(this);
 			mino += ts;
-			tau += ts * (r2 + a2 * cth2);
+			tau += ts * sigma;
 		} while (r > horizon && mino <= T);  // outside horizon and in proper time range
 		return eCum;
 	}

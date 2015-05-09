@@ -3,7 +3,7 @@
 ic=${1:-''}
 
 jarfile='target/blackhole4d-1.11-SNAPSHOT-jar-with-dependencies.jar'
-d=data
+d='data'
 pydir='../../Python/BlackHole4dPython'
 
 java -jar $jarfile <$ic >$d &
@@ -11,13 +11,20 @@ PID=$!
 sleep 1
 $pydir/filegraphics.py $d $ic&
 wait $PID
+#$pydir/filepotential.py potential &
 set $(wc -l $d)
 if [ $1 -gt 10000 ]
 then
-	$pydir/datachart.py $d $(($1 / 2000)) &
+	$pydir/chart.py $d $(($1 / 2000)) 't' &
+	$pydir/chart.py $d $(($1 / 2000)) 'r' &
+	$pydir/chart.py $d $(($1 / 2000)) 'th' &
+	$pydir/chart.py $d $(($1 / 2000)) 'ph' &
 	$pydir/errorchart.py $d $(($1 / 2000)) &
 else
-	$pydir/datachart.py $d 1 &
+	$pydir/chart.py $d 1 't' &
+	$pydir/chart.py $d 1 'r' &
+	$pydir/chart.py $d 1 'th' &
+	$pydir/chart.py $d 1 'ph' &
 	$pydir/errorchart.py $d 1 &
 fi
 
