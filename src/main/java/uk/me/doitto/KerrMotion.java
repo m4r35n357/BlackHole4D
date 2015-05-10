@@ -120,15 +120,15 @@ public final class KerrMotion {
 		ph += ts * phDot;
 	}
 	
-	void updateQ (double c) {
+	void updateQ (double c) {  // dH/dX
 		r += c * ts * rDot;
 		th += c * ts * thDot;
 		updateIntermediates();
 	}
 	
-	void updateP (double c) {
-		rDot += c * ts * (2.0 * r * E * P1 - P2 * (r - M) - mu2 * r * delta);  // dR/dr see Maxima file bh.wxm, Mino Time
-		thDot += c * ts * (cth * sth * TH + L2 * cth2 * cth / (sth2 * sth));  // dTHETA/dtheta see Maxima file bh.wxm, Mino Time
+	void updateP (double c) {  // dH/dXdot
+		rDot += c * ts * (2.0 * r * E * P1 - P2 * (r - M) - mu2 * r * delta);  // dR/dr see Maxima file maths.wxm, "My Equations (Mino Time)"
+		thDot += c * ts * (cth * sth * TH + L2 * cth2 * cth / (sth2 * sth));  // dTheta/dtheta see Maxima file maths.wxm, "My Equations (Mino Time)"
 	}
 	
 	public double simulate () {
