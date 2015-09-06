@@ -20,11 +20,6 @@ import static java.lang.Math.cos;
 import static java.lang.Math.log10;
 import static java.lang.Math.sin;
 import static java.lang.Math.sqrt;
-import static uk.me.doitto.Integrator.SV10;
-import static uk.me.doitto.Integrator.SV2;
-import static uk.me.doitto.Integrator.SV4;
-import static uk.me.doitto.Integrator.SV6;
-import static uk.me.doitto.Integrator.SV8;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -39,7 +34,7 @@ import org.json.simple.JSONValue;
  * @author ian
  * Particle and photon trajectories in the Kerr spacetime and in Boyer-Lindquist coordinates
  */
-public final class KerrMotion {
+public final class KerrMotion implements IModel {
 	
 	private final double M, a, horizon, mu2, E, E2, L, L2, Q, T, ts, a2, aE, a2E, aL, l_ae2, a2mu2_E2, nf = 1.0e-18; // constants for this spacetime
 	
@@ -47,12 +42,12 @@ public final class KerrMotion {
 	
 	private double mino, tau, t, r, th, ph, tDot, rDot, thDot, phDot, eCum, e, eR, eTh; // coordinates etc.
 	
-	private Integrator integrator = SV2;
+	private ISymplectic integrator;
 	
 	/**
 	 * Constructor, constants and initial conditions
 	 */
-	public KerrMotion (double bhMass, double spin, double pMass, double energy, double zAngMom, double CC, double r0, double th0, double duration, double timestep, int order) {
+	public KerrMotion (double bhMass, double spin, double pMass, double energy, double zAngMom, double CC, double r0, double th0, double duration, double timestep, String order) {
 		M = bhMass;
 		a = spin;
 		a2 = a * a;
@@ -72,13 +67,7 @@ public final class KerrMotion {
 		th = th0;
 		T = duration;
 		ts = timestep;
-		switch (order) {
-			case 2: integrator = SV2; break;
-			case 4: integrator = SV4; break;
-			case 6: integrator = SV6; break;
-			case 8: integrator = SV8; break;
-			case 10: integrator = SV10; break;
-		}
+		this.integrator = Integrator.getIntegrator(this, order);
 	}
 
 	private double clamp (double potential) {
@@ -120,17 +109,27 @@ public final class KerrMotion {
 		ph += ts * phDot;
 	}
 	
-	void updateQ (double c) {  // dH/dX
+	public void qUp (double c) {  // dH/dX
 		r += c * ts * rDot;
 		th += c * ts * thDot;
 		updateIntermediates();
 	}
 	
-	void updateP (double c) {  // dH/dXdot
+	public void pUp (double c) {  // dH/dXdot
 		rDot += c * ts * (2.0 * r * E * P1 - P2 * (r - M) - mu2 * r * delta);  // dR/dr see Maxima file maths.wxm, "My Equations (Mino Time)"
 		thDot += c * ts * (cth * sth * TH + L2 * cth2 * cth / (sth2 * sth));  // dTheta/dtheta see Maxima file maths.wxm, "My Equations (Mino Time)"
 	}
 	
+	@Override
+	public double getH() {
+		return ts;
+	}
+
+	@Override
+	public void evolve() {
+		integrator.compose();
+		
+	}
 	public double simulate () {
 		updateIntermediates();
 		rDot = - sqrt(clamp(R));  // MTW eq.33.32b
@@ -143,7 +142,7 @@ public final class KerrMotion {
 			System.out.printf("{\"mino\":%.9e, \"tau\":%.9e, \"E\":%.1f, \"ER\":%.1f, \"ETh\":%.1f, \"EC\":%.1f, \"t\":%.9e, \"r\":%.9e, \"th\":%.9e, \"ph\":%.9e, \"tDot\":%.9e, \"rDot\":%.9e, \"thDot\":%.9e, \"phDot\":%.9e, \"x\":%.9e, \"y\":%.9e, \"z\":%.9e}%n",
 					mino, tau, e, eR, eTh, 10.0 * log10(eCum >= nf ? eCum : nf), t, r, th, ph, tDot / sigma, rDot / sigma, thDot / sigma, phDot / sigma, ra * sth * cos(ph), ra * sth * sin(ph), r * cth);
 			update_t_phi();  // Euler
-			integrator.solve(this);
+			evolve();
 			mino += ts;
 			tau += ts * sigma;
 		} while (r > horizon && mino <= T);  // outside horizon and in proper time range
@@ -172,6 +171,7 @@ public final class KerrMotion {
 		bufferedReader.close();
 		JSONObject ic = (JSONObject)JSONValue.parse(data.toString());
 		new KerrMotion ((double)ic.get("M"), (double)ic.get("a"), (double)ic.get("mu"), (double)ic.get("E"), (double)ic.get("Lz"), (double)ic.get("C"),
-			(double)ic.get("r"), (double)ic.get("theta"), (double)ic.get("time"), (double)ic.get("step"), ((Long)ic.get("integratorOrder")).intValue()).simulate();
+			(double)ic.get("r"), (double)ic.get("theta"), (double)ic.get("time"), (double)ic.get("step"), (String)ic.get("integratorOrder")).simulate();
 	}
+
 }

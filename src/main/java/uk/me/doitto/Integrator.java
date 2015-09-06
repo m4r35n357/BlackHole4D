@@ -22,68 +22,51 @@ import static java.lang.Math.pow;
  * <p>
  * Symplectic integrators of various orders and types
  */
-public enum Integrator {
-	/**
-	 * Stormer-Verlet 2nd-order
-	 */
-	SV2 (new double[] { 1.0 }),
-	
-	/**
-	 * Yoshida 4th-order
-	 */
-	SV4 (new double[] { Constants.y, - Constants.y * Constants.CUBE_ROOT_2 }),
-	
-	/**
-	 * Yoshida 6th-order
-	 */
-	SV6 (new double[] { 0.78451361047755726381949763, 0.23557321335935813368479318, -1.17767998417887100694641568, 1.31518632068391121888424973 }),
-									
-	/**
-	 * Yoshida 8th-order
-	 */
-	SV8 (new double[] { 0.74167036435061295344822780, -0.40910082580003159399730010, 0.19075471029623837995387626, -0.57386247111608226665638773, 0.29906418130365592384446354, 0.33462491824529818378495798, 0.31529309239676659663205666, -0.79688793935291635401978884 }),
-									
-	/**
-	 * Yoshida 10th-order
-	 */
-	SV10 (new double[] { 0.09040619368607278492161150, 0.53591815953030120213784983, 0.35123257547493978187517736, -0.31116802097815835426086544, -0.52556314194263510431065549, 0.14447909410225247647345695, 0.02983588609748235818064083, 0.17786179923739805133592238, 0.09826906939341637652532377, 0.46179986210411860873242126, -0.33377845599881851314531820, 0.07095684836524793621031152, 0.23666960070126868771909819, -0.49725977950660985445028388, -0.30399616617237257346546356, 0.05246957188100069574521612, 0.44373380805019087955111365 });
 
-	private static class Constants {
-		public final static double CUBE_ROOT_2 = pow(2.0, 1.0 / 3.0);		
-		public final static double y = 1.0 / (2.0 - CUBE_ROOT_2);
+
+/**
+ * Integrator superclass with an ISymplectic factory method
+ */
+public abstract class Integrator implements ISymplectic {
+
+    private double[] compWeight;
+    private int wRange;
+    protected IModel model;
+    protected double[] baseCoeff;
+
+    protected Integrator (IModel model, double[] compWeight) {
+        this.compWeight = compWeight;
+        this.wRange = compWeight.length;
+        this.model = model;
+    }
+
+	public static ISymplectic getIntegrator (IModel model, String order) {
+		ISymplectic integrator = null;
+	    switch (order) {
+	        case "sb2":  // second order, basic
+	            integrator = new Base2(model, new double[]{ 1.0 });
+	            break;
+	        case "sc4":  // fourth order, composed
+				double cbrt2 = pow(2.0, (1.0 / 3.0));
+	            integrator = new Base2(model, new double[]{ 1.0 / (2.0 - cbrt2), - cbrt2 / (2.0 - cbrt2), 1.0 / (2.0 - cbrt2) });
+	            break;
+	        case "sb4":  // fourth order, basic
+	            integrator = new Base4(model, new double[]{ 1.0 });
+	            break;
+	        case "sc6":  // sixth order, composed
+	            double fthrt2 = pow(2.0, (1.0 / 5.0));
+	            integrator = new Base4(model, new double[]{ 1.0 / (2.0 - fthrt2), - fthrt2 / (2.0 - fthrt2), 1.0 / (2.0 - fthrt2) });
+	            break;
+	    }
+        return integrator;
 	}
-	
-	protected final double[] gammas;
-	
-	protected final int gammaLength;
-	
-	Integrator (double[] coefficients) {
-		this.gammas = coefficients;
-		this.gammaLength = coefficients.length - 1;
-	}
-	
-	/**
-	 * Basic 2nd-order Stormer-Verlet step which is composed into higher order methods
-	 * @param bh the KerrMotion instance
-	 * @param y composition coefficient
-	 */
-	protected final void sv (KerrMotion bh, double y) {
-		double halfY = 0.5 * y;
-		bh.updateQ(halfY);
-		bh.updateP(y);
-		bh.updateQ(halfY);
-	}
-	
-	/**
-	 * Perform one iteration step for the configured integrator
-	 * @param bh the KerrMotion object reference, for passing through to the Q & P update methods
-	 */
-	void solve (KerrMotion bh) {
-		for (int i = 0; i < gammaLength; i++) {
-			sv(bh, gammas[i]);
-		}
-		for (int i = gammaLength; i >= 0; i--) {
-			sv(bh, gammas[i]);
-		}
-	}
+
+    protected abstract void integrate (double w);
+
+    public void compose () {
+		for (int i = 0; i < wRange; i++) {
+            integrate(compWeight[i] * model.getH());
+        }
+    }
 }
+
